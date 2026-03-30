@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🌾 QQ农场计时器</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌾</text></svg>">
+    <meta name="theme-color" content="#4CAF50">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+</head>
+<body>
+    <div id="app">
+        <!-- 顶部导航 -->
+        <header class="app-header">
+            <h1>🌾 QQ农场计时器</h1>
+            <button class="settings-btn" onclick="toggleSettings()" title="设置">⚙️</button>
+        </header>
+
+        <!-- 标签页导航 -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="timer" onclick="switchTab('timer')">⏰ 定时</button>
+            <button class="tab-btn" data-tab="plant" onclick="switchTab('plant')">🌱 种植</button>
+            <button class="tab-btn" data-tab="sleep" onclick="switchTab('sleep')">😴 睡前方案</button>
+            <button class="tab-btn" data-tab="alerts" onclick="switchTab('alerts')">🔔 闹钟列表</button>
+        </nav>
+
+        <!-- 背景装饰粒子 -->
+        <div class="bg-particles" aria-hidden="true">
+            <span class="particle p1">🍃</span>
+            <span class="particle p2">🌱</span>
+            <span class="particle p3">✨</span>
+            <span class="particle p4">🍃</span>
+            <span class="particle p5">💧</span>
+        </div>
+
+        <!-- 定时页面 -->
+        <section id="tab-timer" class="tab-content active">
+            <div class="card">
+                <h2>⏰ 快速定时</h2>
+                
+                <!-- 滚轮选择器 -->
+                <div class="time-picker">
+                    <div class="wheel-group">
+                        <div class="wheel-container" id="hour-wheel">
+                            <button class="wheel-btn up" onclick="wheelAdjust('hour', 1)">▲</button>
+                            <div class="wheel-display" id="hour-display">00</div>
+                            <button class="wheel-btn down" onclick="wheelAdjust('hour', -1)">▼</button>
+                        </div>
+                        <span class="wheel-sep">时</span>
+                    </div>
+                    <div class="wheel-group">
+                        <div class="wheel-container" id="minute-wheel">
+                            <button class="wheel-btn up" onclick="wheelAdjust('minute', 1)">▲</button>
+                            <div class="wheel-display" id="minute-display">00</div>
+                            <button class="wheel-btn down" onclick="wheelAdjust('minute', -1)">▼</button>
+                        </div>
+                        <span class="wheel-sep">分</span>
+                    </div>
+                    <div class="wheel-group">
+                        <div class="wheel-container" id="second-wheel">
+                            <button class="wheel-btn up" onclick="wheelAdjust('second', 1)">▲</button>
+                            <div class="wheel-display" id="second-display">00</div>
+                            <button class="wheel-btn down" onclick="wheelAdjust('second', -1)">▼</button>
+                        </div>
+                        <span class="wheel-sep">秒</span>
+                    </div>
+                </div>
+
+                <!-- 快捷时间按钮 -->
+                <div class="quick-times">
+                    <button onclick="setQuickTime(30)">30秒</button>
+                    <button onclick="setQuickTime(300)">5分钟</button>
+                    <button onclick="setQuickTime(600)">10分钟</button>
+                    <button onclick="setQuickTime(1800)">30分钟</button>
+                    <button onclick="setQuickTime(3600)">1小时</button>
+                    <button onclick="setQuickTime(7200)">2小时</button>
+                    <button onclick="setQuickTime(14400)">4小时</button>
+                    <button onclick="setQuickTime(28800)">8小时</button>
+                </div>
+
+                <!-- 语音控制 -->
+                <div class="voice-control">
+                    <button class="voice-btn" id="voice-btn" onclick="toggleVoice()">
+                        <span class="voice-icon">🎤</span>
+                        <span class="voice-text">语音输入</span>
+                    </button>
+                    <p class="voice-hint" id="voice-hint">试试说："30分钟后提醒我"</p>
+                    <div class="voice-result" id="voice-result"></div>
+                </div>
+
+                <button class="primary-btn" onclick="startTimer()">
+                    🚀 开始计时
+                </button>
+            </div>
+
+            <!-- 当前运行中的定时器 -->
+            <div class="card" id="running-timers-card" style="display:none;">
+                <h2>▶️ 运行中</h2>
+                <div id="running-timers"></div>
+            </div>
+        </section>
+
+        <!-- 种植页面 -->
+        <section id="tab-plant" class="tab-content">
+            <div class="card">
+                <h2>🌱 选择植物品种</h2>
+                <div class="plant-search">
+                    <input type="text" id="plant-search-input" placeholder="🔍 搜索植物名称..." oninput="filterPlants(this.value)">
+                </div>
+                <div class="plant-grid" id="plant-grid">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+
+            <!-- 自定义种植时间 -->
+            <div class="card">
+                <h2>✏️ 自定义种植</h2>
+                <div class="custom-plant-form">
+                    <input type="text" id="custom-plant-name" placeholder="植物名称（如：草莓）">
+                    <div class="time-input-row">
+                        <input type="number" id="custom-hours" placeholder="小时" min="0" max="72">
+                        <span>时</span>
+                        <input type="number" id="custom-minutes" placeholder="分钟" min="0" max="59">
+                        <span>分</span>
+                    </div>
+                    <button class="primary-btn" onclick="addCustomPlant()">添加自定义植物</button>
+                </div>
+            </div>
+
+            <!-- 截图识别 -->
+            <div class="card">
+                <h2>📸 农场截图识别</h2>
+                <p class="hint-text">上传QQ农场截图，自动识别植物和成熟时间</p>
+                <div class="upload-area" id="upload-area" onclick="document.getElementById('file-input').click()">
+                    <input type="file" id="file-input" accept="image/*" onchange="handleScreenshot(event)" hidden>
+                    <span class="upload-icon">📷</span>
+                    <span>点击上传截图</span>
+                </div>
+                <div class="upload-area" id="paste-area">
+                    <span class="upload-icon">📋</span>
+                    <span>或 Ctrl+V 粘贴截图</span>
+                </div>
+                <div id="screenshot-preview" style="display:none;">
+                    <img id="preview-img" src="" alt="预览">
+                    <div id="ocr-results"></div>
+                </div>
+                
+                <!-- 手动输入识别结果 -->
+                <div class="ocr-manual" id="ocr-manual">
+                    <h3>📝 手动输入植物信息</h3>
+                    <div id="manual-entries">
+                        <div class="manual-entry">
+                            <select class="plant-select" onchange="updateManualEntry()">
+                                <option value="">选择植物</option>
+                            </select>
+                            <span>成熟还需</span>
+                            <input type="number" class="entry-hours" placeholder="时" min="0" max="72" value="0">
+                            <span>时</span>
+                            <input type="number" class="entry-minutes" placeholder="分" min="0" max="59" value="0">
+                            <span>分</span>
+                            <button class="remove-entry" onclick="removeManualEntry(this)">✕</button>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button class="secondary-btn" onclick="addManualEntry()">+ 添加一行</button>
+                        <button class="primary-btn" onclick="applyManualEntries()">确认并设置闹钟</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 睡前方案页面 -->
+        <section id="tab-sleep" class="tab-content">
+            <div class="card">
+                <h2>😴 睡前种植方案</h2>
+                <p class="hint-text">根据你的起床时间，计算睡前种什么植物最合适，确保起床后刚好可以收菜！</p>
+                
+                <div class="sleep-form">
+                    <div class="form-row">
+                        <label>预计入睡时间</label>
+                        <input type="time" id="sleep-time" value="23:30">
+                    </div>
+                    <div class="form-row">
+                        <label>预计起床时间</label>
+                        <input type="time" id="wake-time" value="07:30">
+                    </div>
+                    <div class="form-row">
+                        <label>可种植地块数</label>
+                        <div class="counter">
+                            <button onclick="adjustCount('plot-count', -1)">−</button>
+                            <input type="number" id="plot-count" value="6" min="1" max="24">
+                            <button onclick="adjustCount('plot-count', 1)">+</button>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <label>已种植地块（睡觉期间已成熟）</label>
+                        <div class="counter">
+                            <button onclick="adjustCount('existing-plots', -1)">−</button>
+                            <input type="number" id="existing-plots" value="2" min="0" max="24">
+                            <button onclick="adjustCount('existing-plots', 1)">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="primary-btn" onclick="calculateSleepPlan()">
+                    🧮 计算最佳方案
+                </button>
+
+                <div id="sleep-plan-result" class="sleep-plan-result" style="display:none;">
+                    <!-- 动态生成 -->
+                </div>
+            </div>
+        </section>
+
+        <!-- 闹钟列表页面 -->
+        <section id="tab-alerts" class="tab-content">
+            <div class="card">
+                <h2>🔔 闹钟列表</h2>
+                <div id="alerts-list" class="alerts-list">
+                    <p class="empty-text">暂无闹钟，去设置一个吧！</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 设置面板 -->
+        <div class="modal-overlay" id="settings-modal" style="display:none;">
+            <div class="modal">
+                <h2>⚙️ 设置</h2>
+                <div class="setting-item">
+                    <label>提醒音量</label>
+                    <input type="range" id="volume-slider" min="0" max="100" value="70" oninput="updateVolume(this.value)">
+                </div>
+                <div class="setting-item">
+                    <label>提醒方式</label>
+                    <div class="toggle-group">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="notify-sound" checked onchange="updateNotifySetting('notifySound')"> 声音提醒
+                        </label>
+                        <label class="toggle-label">
+                            <input type="checkbox" id="notify-vibrate" onchange="updateNotifySetting('notifyVibrate')"> 震动提醒
+                        </label>
+                        <label class="toggle-label">
+                            <input type="checkbox" id="notify-push" checked onchange="updateNotifySetting('notifyPush')"> 浏览器通知
+                        </label>
+                    </div>
+                </div>
+                <div class="setting-item">
+                    <label>提醒声音</label>
+                    <select id="alarm-sound-select" onchange="updateAlarmSound(this.value)">
+                        <option value="classic">经典铃声</option>
+                        <option value="chicken">🐔 小鸡叫声</option>
+                        <option value="harvest">🌾 收获音效</option>
+                        <option value="alert">⚠️ 警报</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <button class="danger-btn" onclick="clearAllAlerts()">🗑️ 清除所有闹钟</button>
+                </div>
+                <button class="secondary-btn" onclick="toggleSettings()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 提醒弹窗 -->
+    <div class="alarm-overlay" id="alarm-overlay" style="display:none;">
+        <div class="alarm-popup">
+            <div class="alarm-icon">🌾🔔</div>
+            <h2>收菜时间到！</h2>
+            <p id="alarm-message"></p>
+            <button class="primary-btn alarm-dismiss" onclick="dismissAlarm()">我知道了</button>
+        </div>
+    </div>
+
+    <script src="plants-data.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
