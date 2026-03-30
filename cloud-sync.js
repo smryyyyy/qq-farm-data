@@ -22,55 +22,75 @@ const CloudSync = {
         const statusEl = document.getElementById('sync-status');
         const tokenInput = document.getElementById('gh-token-input');
         const sendKeyInput = document.getElementById('send-key-input');
+        const tokenStatus = document.getElementById('token-status');
+        const sendkeyStatus = document.getElementById('sendkey-status');
 
         if (tokenInput && this.token) {
             tokenInput.value = this.token;
             // 安全显示：只显示前后几位
             const masked = this.token.slice(0, 7) + '...' + this.token.slice(-4);
-            document.getElementById('token-display').textContent = masked;
-            document.getElementById('token-status').textContent = '✅ 已配置';
-            document.getElementById('token-status').className = 'status-badge connected';
+            tokenInput.placeholder = masked;
+            if (tokenStatus) {
+                tokenStatus.textContent = '✅ 已配置';
+                tokenStatus.className = 'status-badge connected';
+            }
+        } else if (tokenStatus) {
+            tokenStatus.textContent = '未配置';
+            tokenStatus.className = 'status-badge';
         }
         if (sendKeyInput && this.sendKey) {
             sendKeyInput.value = this.sendKey;
-            document.getElementById('sendkey-status').textContent = '✅ 已配置';
-            document.getElementById('sendkey-status').className = 'status-badge connected';
+            if (sendkeyStatus) {
+                sendkeyStatus.textContent = '✅ 已配置';
+                sendkeyStatus.className = 'status-badge connected';
+            }
+        } else if (sendkeyStatus) {
+            sendkeyStatus.textContent = '未配置';
+            sendkeyStatus.className = 'status-badge';
         }
         if (statusEl) {
-            if (this.token) {
-                statusEl.textContent = this.gistId ? '☁️ 已连接云端' : '☁️ 待连接';
+            if (this.token && this.gistId) {
+                statusEl.textContent = '☁️ 已连接云端';
+                statusEl.className = 'sync-status connected';
+            } else if (this.token) {
+                statusEl.textContent = '☁️ 待首次同步';
                 statusEl.className = 'sync-status connected';
             } else {
                 statusEl.textContent = '☁️ 未连接';
                 statusEl.className = 'sync-status';
             }
         }
+        // 同步更新闹钟列表页的状态栏
+        updateSyncStatusBar();
     },
 
     // ========== 保存配置 ==========
     saveConfig() {
         const tokenEl = document.getElementById('gh-token-input');
         const sendKeyEl = document.getElementById('send-key-input');
+        let changed = false;
 
         if (tokenEl) {
             const newToken = tokenEl.value.trim();
             if (newToken && newToken !== this.token) {
                 this.token = newToken;
                 localStorage.setItem('farm-gh-token', newToken);
-                this.gistId = ''; // Token 变了，需要重新查找 Gist
+                this.gistId = '';
                 localStorage.removeItem('farm-gist-id');
+                changed = true;
             }
         }
         if (sendKeyEl) {
             const newKey = sendKeyEl.value.trim();
-            if (newKey) {
+            if (newKey && newKey !== this.sendKey) {
                 this.sendKey = newKey;
                 localStorage.setItem('farm-send-key', newKey);
+                changed = true;
             }
         }
 
         this.updateUI();
-        showToast('✅ 配置已保存');
+        showToast(changed ? '✅ 配置已保存' : '✅ 配置无变化，已确认');
     },
 
     // ========== GitHub API 请求 ==========
