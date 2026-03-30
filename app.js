@@ -474,7 +474,13 @@ function startTimerLoop() {
 }
 
 // ========== 闹钟触发 ==========
+let triggeredAlarmIds = new Set();
+
 function triggerAlarm(timer) {
+    // 防重入：同一个闹钟只触发一次
+    if (triggeredAlarmIds.has(timer.id)) return;
+    triggeredAlarmIds.add(timer.id);
+    
     const message = timer.plant 
         ? `${PLANTS_DATABASE[timer.plant]?.emoji || '🌱'} ${timer.plant || '植物'}成熟了！快去收菜！` 
         : `⏰ 定时结束！${timer.label}`;
@@ -511,6 +517,8 @@ function triggerAlarm(timer) {
 function dismissAlarm() {
     document.getElementById('alarm-overlay').style.display = 'none';
     stopAlarmSound();
+    // 清除防重入记录（允许同一个ID的闹钟重新创建后再触发）
+    triggeredAlarmIds.clear();
 }
 
 // ========== 声音系统 ==========
