@@ -15,7 +15,7 @@ const LAND_TYPES = {
 };
 
 // level:解锁等级 seedPrice:种子价 sellPrice:果实总售价
-// exp:经验 firstTime:每季时间(h) reTime:再熟时间(h) seasons:季数
+// exp:经验 firstTime:首季成熟时间(h) reTime:再熟时间(h，默认按首季一半处理) seasons:季数
 // land:"any"=所有 "red"=红土及以上 category:分类
 const PLANTS_DATABASE = {
 
@@ -351,8 +351,15 @@ function getSeasonTimes(plantName, landType) {
 function normalizePlantRecord(plant, { isCustom = false } = {}) {
     if (!plant) return plant;
     if ((plant.firstTime === undefined || plant.firstTime === null) && plant.growthTime !== undefined) plant.firstTime = plant.growthTime;
-    if (plant.reTime === undefined || plant.reTime === null) plant.reTime = 0;
     if (plant.seasons === undefined || plant.seasons === null) plant.seasons = 1;
+
+    if (plant.seasons > 1) {
+        const firstTime = Number(plant.firstTime) || 0;
+        plant.reTime = Math.round(firstTime / 2 * 10) / 10;
+    } else {
+        plant.reTime = 0;
+    }
+
     if (!plant.land) plant.land = "any";
     if (!plant.category) plant.category = isCustom ? "自定义" : "作物";
     if (!plant.emoji) plant.emoji = "🌱";
