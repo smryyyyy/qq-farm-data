@@ -15,16 +15,19 @@
         <!-- 顶部导航 -->
         <header class="app-header">
             <h1>🌾 QQ农场计时器</h1>
-            <button class="settings-btn" onclick="toggleSettings()" title="设置">⚙️</button>
+            <div class="header-actions">
+                <button class="sync-header-btn" id="header-sync-btn" onclick="CloudSync.syncNow()" title="云同步">
+                    <span id="header-sync-icon">☁️</span>
+                </button>
+                <button class="settings-btn" onclick="toggleSettings()" title="设置">⚙️</button>
+            </div>
         </header>
 
         <!-- 标签页导航 -->
         <nav class="tab-nav">
             <button class="tab-btn active" data-tab="timer" onclick="switchTab('timer')">⏰ 定时</button>
             <button class="tab-btn" data-tab="plant" onclick="switchTab('plant')">🌱 种植</button>
-            <button class="tab-btn" data-tab="sleep" onclick="switchTab('sleep')">😴 睡前方案</button>
-            <button class="tab-btn" data-tab="alerts" onclick="switchTab('alerts')">🔔 闹钟</button>
-            <button class="tab-btn" data-tab="history" onclick="switchTab('history')">📋 历史</button>
+            <button class="tab-btn" data-tab="sleep" onclick="switchTab('sleep')">🧮 方案计算</button>
         </nav>
 
         <!-- 背景装饰粒子 -->
@@ -101,6 +104,21 @@
                 <h2>▶️ 运行中</h2>
                 <div id="running-timers"></div>
             </div>
+
+            <!-- 闹钟列表 -->
+            <div class="card" id="alarm-list-card">
+                <div class="history-header">
+                    <h2>🔔 闹钟列表</h2>
+                    <span id="history-count" class="history-count">0条</span>
+                </div>
+                <p class="hint-text">当前生效中的闹钟和历史已触发闹钟混合显示，按最近相关时间排序。</p>
+                <div id="alerts-list" class="alerts-list">
+                    <p class="empty-text">暂无闹钟记录，去设置一个吧！</p>
+                </div>
+                <div id="history-clear-wrap" class="history-clear-wrap" style="display:none;">
+                    <button class="danger-btn" onclick="clearHistory()">🗑️ 清空历史记录</button>
+                </div>
+            </div>
         </section>
 
         <!-- 种植页面 -->
@@ -119,6 +137,7 @@
                 </div>
                 <div class="land-info" id="land-info">
                     <span class="land-bonus" id="land-bonus-text">增产+0% · 成熟时间无缩短</span>
+                    <div class="land-filter-note" id="land-filter-note">当前为普通土地：红土地及以上专属作物不会显示。</div>
                 </div>
                 <div class="plant-search">
                     <input type="text" id="plant-search-input" placeholder="🔍 搜索植物名称..." oninput="filterPlants(this.value)">
@@ -134,12 +153,26 @@
                 <div class="custom-plant-form">
                     <input type="text" id="custom-plant-name" placeholder="植物名称（如：草莓）">
                     <div class="time-input-row">
-                        <input type="number" id="custom-hours" placeholder="小时" min="0" max="72">
+                        <input type="number" id="custom-hours" placeholder="小时" min="0" max="200">
                         <span>时</span>
                         <input type="number" id="custom-minutes" placeholder="分钟" min="0" max="59">
                         <span>分</span>
                     </div>
+                    <div class="season-input-row">
+                        <span class="season-label">季数</span>
+                        <div class="counter season-counter">
+                            <button onclick="adjustCount('custom-seasons', -1)">−</button>
+                            <input type="number" id="custom-seasons" value="1" min="1" max="10">
+                            <button onclick="adjustCount('custom-seasons', 1)">+</button>
+                        </div>
+                        <span class="season-hint" id="season-time-hint"></span>
+                    </div>
                     <button class="primary-btn" onclick="addCustomPlant()">添加自定义植物</button>
+                </div>
+                <!-- 已添加的自定义植物列表 -->
+                <div id="custom-plants-list" class="custom-plants-list" style="display:none;">
+                    <h3>📦 已添加的自定义植物</h3>
+                    <div id="custom-plants-container"></div>
                 </div>
             </div>
 
@@ -228,36 +261,6 @@
             </div>
         </section>
 
-        <!-- 闹钟列表页面 -->
-        <section id="tab-alerts" class="tab-content">
-            <div class="card">
-                <h2>🔔 闹钟列表</h2>
-                <div id="sync-status-bar" class="sync-status-bar">
-                    <span id="sync-status-text">☁️ 未连接云端</span>
-                    <button class="sync-btn" onclick="CloudSync.syncNow()">🔄 同步</button>
-                </div>
-                <div id="alerts-list" class="alerts-list">
-                    <p class="empty-text">暂无闹钟，去设置一个吧！</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- 历史记录页面 -->
-        <section id="tab-history" class="tab-content">
-            <div class="card">
-                <div class="history-header">
-                    <h2>📋 闹钟历史</h2>
-                    <span id="history-count" class="history-count">0条</span>
-                </div>
-                <p class="hint-text">已触发的闹钟记录，最新排最前</p>
-                <div id="history-list" class="history-list">
-                    <p class="empty-text">暂无历史记录</p>
-                </div>
-                <div id="history-clear-wrap" class="history-clear-wrap" style="display:none;">
-                    <button class="danger-btn" onclick="clearHistory()">🗑️ 清空历史记录</button>
-                </div>
-            </div>
-        </section>
 
         <!-- 设置面板 -->
         <div class="modal-overlay" id="settings-modal" style="display:none;">

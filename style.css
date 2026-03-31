@@ -66,6 +66,40 @@ body {
     text-shadow: 0 1px 2px rgba(0,0,0,0.2);
 }
 
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sync-header-btn {
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sync-header-btn:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+.sync-header-btn.syncing {
+    animation: syncSpin 1s linear infinite;
+}
+
+@keyframes syncSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
 .settings-btn {
     background: rgba(255,255,255,0.2);
     border: none;
@@ -513,6 +547,13 @@ body {
     border-radius: 10px;
 }
 
+.land-filter-note {
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.6;
+    color: var(--text-muted);
+}
+
 .plant-search input {
     width: 100%;
     padding: 10px 16px;
@@ -535,14 +576,14 @@ body {
 
 .plant-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
 }
 
 .plant-card {
     background: var(--bg-primary);
     border-radius: var(--radius-sm);
-    padding: 10px 6px;
+    padding: 8px 4px;
     text-align: center;
     cursor: pointer;
     transition: all 0.2s;
@@ -624,6 +665,77 @@ body {
 
 .custom-plant-form input[type="text"]:focus {
     border-color: var(--accent-green);
+}
+
+.season-input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.season-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.season-counter {
+    flex-shrink: 0;
+}
+
+.season-hint {
+    font-size: 12px;
+    color: var(--accent-dark);
+    background: rgba(76, 175, 80, 0.1);
+    padding: 3px 10px;
+    border-radius: 10px;
+    white-space: nowrap;
+}
+
+.custom-plants-list {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+}
+
+.custom-plants-list h3 {
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.custom-plant-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: var(--bg-primary);
+    border-radius: var(--radius-sm);
+    margin-bottom: 6px;
+    gap: 8px;
+}
+
+.custom-plant-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.custom-plant-name {
+    font-size: 14px;
+    font-weight: 600;
+    display: block;
+}
+
+.custom-plant-detail {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.custom-plant-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
 }
 
 .time-input-row {
@@ -1066,12 +1178,24 @@ body {
     border-left: 4px solid var(--accent-green);
 }
 
+.alert-item.history {
+    cursor: pointer;
+}
+
+.alert-item.history:hover {
+    background: var(--bg-secondary);
+    box-shadow: 0 2px 8px var(--shadow);
+    transform: translateY(-1px);
+}
+
 .alert-item.expired {
     opacity: 0.5;
 }
 
 .alert-status {
-    font-size: 10px;
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
     flex-shrink: 0;
 }
 
@@ -1423,7 +1547,24 @@ body {
 /* === 响应式 === */
 @media (max-width: 360px) {
     .plant-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px;
+    }
+
+    .plant-card {
+        padding: 6px 2px;
+    }
+
+    .plant-emoji {
+        font-size: 24px;
+    }
+
+    .plant-name,
+    .plant-time,
+    .plant-level,
+    .plant-profit,
+    .plant-seasons {
+        font-size: 9px;
     }
     
     .wheel-display {

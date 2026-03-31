@@ -21,6 +21,7 @@ let state = {
 
 // ========== 初始化 ==========
 document.addEventListener('DOMContentLoaded', () => {
+    loadCustomPlants();  // 先加载自定义植物到数据库
     CloudSync.init();
     loadState();
     renderPlantGrid();
@@ -35,6 +36,9 @@ document.addEventListener('DOMContentLoaded', () => {
     populatePlantSelects();
     cleanupExpiredAlerts();
     updateSyncStatusBar();
+    renderCustomPlantsList();
+    initSeasonHint();
+    selectLand(state.selectedLand || 'normal');
 
     // 每秒更新运行中的定时器显示
     setInterval(renderRunningTimers, 1000);
@@ -42,21 +46,20 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(cleanupExpiredAlerts, 60000);
 });
 
-// ========== 更新同步状态栏 ==========
+// ========== 更新同步状态栏（顶部按钮状态） ==========
 function updateSyncStatusBar() {
-    const bar = document.getElementById('sync-status-bar');
-    const text = document.getElementById('sync-status-text');
-    if (!bar || !text) return;
+    const syncIcon = document.getElementById('header-sync-icon');
+    if (!syncIcon) return;
 
     if (CloudSync.token && CloudSync.gistId) {
-        text.textContent = '☁️ 已连接云端（数据自动同步）';
-        text.style.color = 'var(--accent-dark)';
+        syncIcon.textContent = '☁️';
+        syncIcon.title = '已连接云端，点击同步';
     } else if (CloudSync.token) {
-        text.textContent = '☁️ 待首次同步';
-        text.style.color = 'var(--accent-yellow)';
+        syncIcon.textContent = '⏳';
+        syncIcon.title = '待首次同步，点击同步';
     } else {
-        text.textContent = '☁️ 未连接（去设置中配置云同步）';
-        text.style.color = 'var(--text-muted)';
+        syncIcon.textContent = '☁️';
+        syncIcon.title = '未连接（去设置中配置云同步）';
     }
 }
 
@@ -304,6 +307,7 @@ function parseVoiceCommand(text) {
     // 解析时间表达式
     let totalSeconds = 0;
     let plantName = '';
+    let plantGrowHours = 0;
     
     // 匹配 "X小时Y分钟后提醒"
     const hourMatch = text.match(/(\d+)\s*小时/);
@@ -317,10 +321,12 @@ function parseVoiceCommand(text) {
     // 如果没有明确时间，尝试匹配植物名称
     if (totalSeconds === 0) {
         const plantNames = Object.keys(PLANTS_DATABASE);
+        const landType = state.selectedLand || 'normal';
         for (const name of plantNames) {
             if (text.includes(name)) {
                 plantName = name;
-                totalSeconds = PLANTS_DATABASE[name].growthTime * 3600;
+                plantGrowHours = calcGrowTime(name, landType) || PLANTS_DATABASE[name].growthTime || 0;
+                totalSeconds = Math.round(plantGrowHours * 3600);
                 break;
             }
         }
@@ -334,7 +340,7 @@ function parseVoiceCommand(text) {
         setQuickTime(totalSeconds);
         
         if (plantName) {
-            showToast(`🎤 已识别：${plantName}，${PLANTS_DATABASE[plantName].growthTime}小时后提醒`);
+            showToast(`🎤 已识别：${plantName}，${plantGrowHours}小时后提醒`);
         } else {
             showToast(`🎤 已设置：${h > 0 ? h + '小时' : ''}${m > 0 ? m + '分钟' : ''}${s > 0 ? s + '秒' : ''}`);
         }
@@ -665,14 +671,73 @@ function selectLand(landType) {
     renderPlantGrid(document.getElementById('plant-search-input').value);
 }
 
+// ========== 植物排序工具 ==========
+const SPECIAL_PLANT_LAST_ORDER = ['新春红包', '哈哈南瓜', '爱心果', '蔷薇', '蝴蝶兰'];
+const SHOP_PLANT_ORDER = [
+    '白萝卜', '胡萝卜', '大白菜', '大蒜',
+    '大葱', '水稻', '小麦', '玉米',
+    '鲜姜', '土豆', '小白菜', '生菜',
+    '油菜', '茄子', '红枣', '蒲公英',
+    '银莲花', '番茄', '花菜', '韭菜',
+    '小雏菊', '豌豆', '莲藕', '红玫瑰',
+    '秋菊（黄色）', '满天星', '含羞草', '牵牛花',
+    '秋菊（红色）', '辣椒', '黄瓜', '芹菜',
+    '天香百合', '南瓜', '核桃', '山楂',
+    '菠菜', '草莓', '苹果', '四叶草',
+    '非洲菊', '火绒草', '花香根鸢尾', '虞美人',
+    '向日葵', '西瓜', '黄豆', '香蕉',
+    '竹笋', '桃子', '甘蔗', '橙子',
+    '茉莉花', '葡萄', '丝瓜', '榛子',
+    '迎春花', '石榴', '栗子', '柚子',
+    '蘑菇', '菠萝', '箬竹', '无花果',
+    '椰子', '花生', '金针菇', '葫芦',
+    '猕猴桃', '梨', '爱心果', '睡莲',
+    '火龙果', '枇杷', '樱桃', '李子',
+    '荔枝', '香瓜', '木瓜', '桂圆',
+    '月柿', '杨桃', '蔷薇', '蝴蝶兰',
+    '哈密瓜', '桑葚', '柠檬', '芒果',
+    '杨梅', '榴莲', '番石榴', '瓶子树',
+    '蓝莓', '猪笼草', '山竹', '曼陀罗华', '曼珠沙华',
+    '苦瓜', '天堂鸟', '冬瓜', '豹皮花',
+    '杏子', '金桔'
+];
+
+function comparePlantsForUI(a, b) {
+    const specialA = SPECIAL_PLANT_LAST_ORDER.indexOf(a.name);
+    const specialB = SPECIAL_PLANT_LAST_ORDER.indexOf(b.name);
+    const aIsSpecial = specialA !== -1;
+    const bIsSpecial = specialB !== -1;
+
+    if (aIsSpecial && !bIsSpecial) return 1;
+    if (!aIsSpecial && bIsSpecial) return -1;
+    if (aIsSpecial && bIsSpecial) return specialA - specialB;
+
+    const shopA = SHOP_PLANT_ORDER.indexOf(a.name);
+    const shopB = SHOP_PLANT_ORDER.indexOf(b.name);
+    const aInShop = shopA !== -1;
+    const bInShop = shopB !== -1;
+
+    if (aInShop && bInShop) return shopA - shopB;
+    if (aInShop && !bInShop) return -1;
+    if (!aInShop && bInShop) return 1;
+
+    if ((a.level || 0) !== (b.level || 0)) return (a.level || 0) - (b.level || 0);
+
+    return (a.name || '').localeCompare(b.name || '', 'zh-CN');
+}
+
+function getOrderedPlantNames() {
+    return Object.keys(PLANTS_DATABASE).sort((a, b) => comparePlantsForUI(PLANTS_DATABASE[a], PLANTS_DATABASE[b]));
+}
+
 // ========== 植物网格 ==========
 function renderPlantGrid(filter = '') {
     const grid = document.getElementById('plant-grid');
     const landType = state.selectedLand;
     const plants = filter ? searchPlants(filter, landType) : Object.values(PLANTS_DATABASE).filter(p => canPlantOnLand(p, landType));
     
-    // 按级别排序
-    plants.sort((a, b) => a.level - b.level);
+    // 按界面展示顺序排序：常规作物按等级，特殊品种置底
+    plants.sort(comparePlantsForUI);
     
     grid.innerHTML = plants.map(plant => {
         const growTime = calcGrowTime(plant.name, landType);
@@ -705,6 +770,7 @@ function addCustomPlant() {
     const name = document.getElementById('custom-plant-name').value.trim();
     const hours = parseInt(document.getElementById('custom-hours').value) || 0;
     const minutes = parseInt(document.getElementById('custom-minutes').value) || 0;
+    const seasons = parseInt(document.getElementById('custom-seasons').value) || 1;
     
     if (!name) {
         showToast('请输入植物名称');
@@ -715,33 +781,98 @@ function addCustomPlant() {
         return;
     }
     
-    const totalMinutes = hours * 60 + minutes;
-    const totalSeconds = totalMinutes * 60;
-    const id = 'timer_' + Date.now();
-    const endTime = new Date(Date.now() + totalSeconds * 1000);
+    // 计算首季成熟时间（小时）
+    const firstTimeHours = Math.round((hours + minutes / 60) * 10) / 10;
     
-    const timer = {
-        id,
-        endTime: endTime.toISOString(),
-        totalSeconds,
-        remainingSeconds: totalSeconds,
-        label: `🌱 ${name} (${hours > 0 ? hours + '时' : ''}${minutes > 0 ? minutes + '分' : ''})`,
-        plant: name,
-        createdAt: new Date().toISOString()
-    };
+    // 添加到植物数据库
+    const plant = addPlantToDatabase(name, firstTimeHours, seasons);
+    if (!plant) return;
     
-    state.timers[id] = timer;
-    state.alerts.push(timer);
-    saveState();
-    renderRunningTimers();
-    renderAlertsList();
-    
+    // 清空输入
     document.getElementById('custom-plant-name').value = '';
     document.getElementById('custom-hours').value = '';
     document.getElementById('custom-minutes').value = '';
+    document.getElementById('custom-seasons').value = 1;
+    updateSeasonHint();
     
-    const endStr = endTime.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-    showToast(`🌱 ${name} 定时已设置，${endStr} 提醒收菜`);
+    // 重新渲染
+    renderPlantGrid(document.getElementById('plant-search-input').value);
+    renderCustomPlantsList();
+    
+    const reTimeStr = seasons > 1 ? `，再熟${plant.reTime}h` : '';
+    showToast(`🌱 "${name}" 已添加到植物库（${seasons}季 · 首季${firstTimeHours}h${reTimeStr}）`);
+}
+
+// ========== 自定义植物列表 ==========
+function renderCustomPlantsList() {
+    const container = document.getElementById('custom-plants-container');
+    const wrapper = document.getElementById('custom-plants-list');
+    if (!container || !wrapper) return;
+    
+    const customPlants = Object.values(PLANTS_DATABASE).filter(p => p.isCustom);
+    
+    if (customPlants.length === 0) {
+        wrapper.style.display = 'none';
+        return;
+    }
+    
+    wrapper.style.display = 'block';
+    container.innerHTML = customPlants.map(p => {
+        const reTimeStr = p.seasons > 1 ? ` · 再熟${p.reTime}h` : '';
+        return `
+            <div class="custom-plant-item">
+                <div class="custom-plant-info">
+                    <span class="custom-plant-name">${p.emoji} ${p.name}</span>
+                    <span class="custom-plant-detail">${p.seasons}季 · 首季${p.firstTime}h${reTimeStr}</span>
+                </div>
+                <div class="custom-plant-actions">
+                    <button class="small-btn" onclick="startPlantTimer('${p.name}')">种植</button>
+                    <button class="remove-entry" onclick="deleteCustomPlant('${p.name}')" title="删除">✕</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function deleteCustomPlant(name) {
+    if (!confirm(`确定要删除自定义植物 "${name}" 吗？`)) return;
+    removePlantFromDatabase(name);
+    renderPlantGrid(document.getElementById('plant-search-input').value);
+    renderCustomPlantsList();
+    showToast(`🗑️ "${name}" 已从植物库删除`);
+}
+
+// ========== 季数输入提示 ==========
+function initSeasonHint() {
+    const hoursInput = document.getElementById('custom-hours');
+    const minutesInput = document.getElementById('custom-minutes');
+    const seasonsInput = document.getElementById('custom-seasons');
+    
+    if (hoursInput) hoursInput.addEventListener('input', updateSeasonHint);
+    if (minutesInput) minutesInput.addEventListener('input', updateSeasonHint);
+    if (seasonsInput) seasonsInput.addEventListener('input', updateSeasonHint);
+    
+    updateSeasonHint();
+}
+
+function updateSeasonHint() {
+    const hintEl = document.getElementById('season-time-hint');
+    if (!hintEl) return;
+    
+    const hours = parseInt(document.getElementById('custom-hours').value) || 0;
+    const minutes = parseInt(document.getElementById('custom-minutes').value) || 0;
+    const seasons = parseInt(document.getElementById('custom-seasons').value) || 1;
+    
+    if (hours <= 0 && minutes <= 0 || seasons <= 1) {
+        hintEl.textContent = '';
+        return;
+    }
+    
+    const firstTime = hours + minutes / 60;
+    const reTime = Math.round(firstTime / 2 * 10) / 10;
+    const total = Math.round((firstTime + reTime * (seasons - 1)) * 10) / 10;
+    
+    hintEl.textContent = `再熟${reTime}h · 总计${total}h`;
 }
 
 // ========== 截图识别 ==========
@@ -790,8 +921,11 @@ function handleImageBlob(blob) {
 
 function populatePlantSelects() {
     const selects = document.querySelectorAll('.plant-select');
+    const orderedNames = getOrderedPlantNames();
     selects.forEach(select => {
-        Object.keys(PLANTS_DATABASE).forEach(name => {
+        // 清空现有选项（保留第一个空选项）
+        while (select.options.length > 1) select.remove(1);
+        orderedNames.forEach(name => {
             const plant = PLANTS_DATABASE[name];
             const option = document.createElement('option');
             option.value = name;
@@ -805,10 +939,11 @@ function addManualEntry() {
     const container = document.getElementById('manual-entries');
     const entry = document.createElement('div');
     entry.className = 'manual-entry';
+    const orderedNames = getOrderedPlantNames();
     entry.innerHTML = `
         <select class="plant-select" onchange="updateManualEntry()">
             <option value="">选择植物</option>
-            ${Object.keys(PLANTS_DATABASE).map(name => 
+            ${orderedNames.map(name => 
                 `<option value="${name}">${PLANTS_DATABASE[name].emoji} ${name} (${PLANTS_DATABASE[name].growthTime}h)</option>`
             ).join('')}
         </select>
@@ -870,7 +1005,8 @@ function applyManualEntries() {
         renderRunningTimers();
         renderAlertsList();
         showToast(`✅ 已设置 ${count} 个闹钟！`);
-        switchTab('alerts');
+        switchTab('timer');
+        document.getElementById('alarm-list-card')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
         showToast('请至少填写一个植物的时间信息');
     }
@@ -907,17 +1043,26 @@ function calculateSleepPlan() {
     }
     
     const sleepHours = sleepDuration / 60;
+    const sleepHourPart = Math.floor(sleepDuration / 60);
+    const sleepMinutePart = sleepDuration % 60;
     const availablePlots = plotCount - existingPlots;
+    const landType = state.selectedLand || 'normal';
+    const land = LAND_TYPES[landType] || LAND_TYPES.normal;
     
     if (availablePlots <= 0) {
         showToast('所有地块已有作物，无需再种植！');
         return;
     }
     
-    // 寻找最佳种植方案
-    // 策略：优先选择成熟时间最接近睡眠时长的植物
-    // 如果有多种选择，选择收益最高的
-    const plants = Object.values(PLANTS_DATABASE);
+    // 生成基于当前土地的作物视图：成熟时间受地块加速影响，收益受增产影响
+    const plants = Object.values(PLANTS_DATABASE)
+        .filter(p => canPlantOnLand(p, landType))
+        .map(p => ({
+            ...p,
+            growthTime: calcGrowTime(p.name, landType),
+            totalGrowthTime: calcTotalGrowTime(p.name, landType),
+            sellPrice: Math.round(p.sellPrice * (1 + land.yieldBonus))
+        }));
     
     // 找出成熟时间 <= 睡眠时长的所有植物
     const suitablePlants = plants.filter(p => p.growthTime <= sleepHours);
@@ -940,9 +1085,7 @@ function calculateSleepPlan() {
         }
     });
     
-    // 策略3：混合种植 - 部分地块种长周期，部分种短周期
-    // 推荐组合
-    const recommendations = generateRecommendations(plants, sleepHours, availablePlots);
+    const recommendations = generateRecommendations(plants, sleepHours);
     
     // 显示结果
     const resultDiv = document.getElementById('sleep-plan-result');
@@ -963,10 +1106,14 @@ function calculateSleepPlan() {
             </div>
             <div class="plan-stat">
                 <span class="stat-label">💤 睡眠时长</span>
-                <span class="stat-value">${Math.floor(sleepHours)}时${Math.round(sleepHours % 60)}分</span>
+                <span class="stat-value">${sleepHourPart}时${sleepMinutePart}分</span>
             </div>
             <div class="plan-stat">
-                <span class="stat-label">🏠 空闲地块</span>
+                <span class="stat-label">🏠 当前土地</span>
+                <span class="stat-value">${land.emoji} ${land.name}</span>
+            </div>
+            <div class="plan-stat">
+                <span class="stat-label">🌾 空闲地块</span>
                 <span class="stat-value">${availablePlots}块</span>
             </div>
         </div>
@@ -974,7 +1121,7 @@ function calculateSleepPlan() {
         ${bestSingle ? `
         <div class="plan-section">
             <h3>🎯 最佳单次种植推荐</h3>
-            <p class="plan-desc">种下后睡一觉起来刚好可以收菜</p>
+            <p class="plan-desc">按当前土地速度计算，尽量让你睡醒就能收菜</p>
             <div class="plan-plant-card">
                 <span class="plan-plant-emoji">${bestSingle.plant.emoji}</span>
                 <div>
@@ -994,7 +1141,7 @@ function calculateSleepPlan() {
         ${bestMulti && bestMulti.rounds > 1 ? `
         <div class="plan-section">
             <h3>💰 最高收益推荐（多轮种植）</h3>
-            <p class="plan-desc">适合半夜会醒来收菜再种的情况</p>
+            <p class="plan-desc">已把当前土地增产效果计入收益</p>
             <div class="plan-plant-card">
                 <span class="plan-plant-emoji">${bestMulti.plant.emoji}</span>
                 <div>
@@ -1011,7 +1158,7 @@ function calculateSleepPlan() {
             <div class="plan-rounds">
                 ${Array.from({length: bestMulti.rounds}, (_, i) => {
                     const harvestTime = new Date();
-                    harvestTime.setHours(sleepH, sleepM + bestMulti.plant.growthTime * 60 * (i + 1));
+                    harvestTime.setHours(sleepH, sleepM + Math.round(bestMulti.plant.growthTime * 60 * (i + 1)));
                     return `<div class="round-item">第${i + 1}轮: ${harvestTime.toLocaleTimeString('zh-CN', {hour:'2-digit', minute:'2-digit'})} 收菜</div>`;
                 }).join('')}
             </div>
@@ -1024,7 +1171,7 @@ function calculateSleepPlan() {
             <div class="recommendations">
                 ${recommendations.map((rec, idx) => `
                     <div class="rec-item ${idx === 0 ? 'best' : ''}">
-                        <div class="rec-rank">${idx === 0 ? '🏆' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx+1}`}</div>
+                        <div class="rec-rank">${idx === 0 ? '🏆' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}</div>
                         <div class="rec-info">
                             <strong>${rec.name}</strong>
                             <span>成熟${rec.growthTime}h | 利润${rec.profit} | 经验${rec.exp}</span>
@@ -1057,10 +1204,10 @@ function findBestPlantForDuration(plants, targetHours) {
         if (plant.growthTime <= targetHours) {
             if (diff < minDiff) {
                 minDiff = diff;
-                best = { ...plant, diffHours: targetHours - plant.growthTime };
-            } else if (diff === minDiff && plant.sellPrice > best.sellPrice) {
+                best = { plant, diffHours: targetHours - plant.growthTime };
+            } else if (diff === minDiff && best && plant.sellPrice > best.plant.sellPrice) {
                 // 同样接近的情况下选收益高的
-                best = { ...plant, diffHours: targetHours - plant.growthTime };
+                best = { plant, diffHours: targetHours - plant.growthTime };
             }
         }
     });
@@ -1071,7 +1218,7 @@ function findBestPlantForDuration(plants, targetHours) {
             const diff = Math.abs(plant.growthTime - targetHours);
             if (diff < minDiff) {
                 minDiff = diff;
-                best = { ...plant, diffHours: plant.growthTime - targetHours };
+                best = { plant, diffHours: plant.growthTime - targetHours };
             }
         });
     }
@@ -1079,7 +1226,7 @@ function findBestPlantForDuration(plants, targetHours) {
     return best;
 }
 
-function generateRecommendations(plants, sleepHours, availablePlots) {
+function generateRecommendations(plants, sleepHours) {
     return plants
         .filter(p => p.growthTime <= sleepHours + 2) // 允许超时2小时内
         .map(plant => {
@@ -1121,40 +1268,88 @@ function generateRecommendations(plants, sleepHours, availablePlots) {
 }
 
 // ========== 闹钟列表 ==========
-function renderAlertsList() {
+function formatAlarmDateTime(dateStr) {
+    return new Date(dateStr).toLocaleString('zh-CN', {
+        month: 'numeric',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function getAlarmFeedItems() {
+    const activeItems = state.alerts
+        .filter(alert => state.timers[alert.id])
+        .map(alert => ({
+            type: 'active',
+            sortTime: new Date(alert.endTime).getTime(),
+            data: alert
+        }));
+
+    const historyItems = state.history.map(item => ({
+        type: 'history',
+        sortTime: new Date(item.triggeredAt || item.endTime).getTime(),
+        data: item
+    }));
+
+    return [...activeItems, ...historyItems].sort((a, b) => b.sortTime - a.sortTime);
+}
+
+function renderAlarmFeed() {
     const list = document.getElementById('alerts-list');
-    const now = new Date();
-    
-    if (state.alerts.length === 0) {
-        list.innerHTML = '<p class="empty-text">暂无闹钟，去设置一个吧！</p>';
+    const countEl = document.getElementById('history-count');
+    const clearWrap = document.getElementById('history-clear-wrap');
+    if (!list) return;
+
+    const feedItems = getAlarmFeedItems();
+
+    if (countEl) countEl.textContent = `${feedItems.length}条`;
+    if (clearWrap) clearWrap.style.display = state.history.length > 0 ? 'block' : 'none';
+
+    if (feedItems.length === 0) {
+        list.innerHTML = '<p class="empty-text">暂无闹钟记录，去设置一个吧！</p>';
         return;
     }
-    
-    list.innerHTML = state.alerts.map(alert => {
-        const endTime = new Date(alert.endTime);
-        const isExpired = endTime <= now;
-        const isActive = state.timers[alert.id] !== undefined;
-        
-        return `
-            <div class="alert-item ${isExpired ? 'expired' : ''} ${isActive ? 'active' : ''}">
-                <div class="alert-status">${isActive ? '🟢' : isExpired ? '⚪' : '🔴'}</div>
-                <div class="alert-info">
-                    <div class="alert-label">${alert.label}</div>
-                    <div class="alert-time">
-                        ${isExpired ? '已到期' : endTime.toLocaleString('zh-CN', { 
-                            month: 'numeric', day: 'numeric', 
-                            hour: '2-digit', minute: '2-digit' 
-                        })}
+
+    list.innerHTML = feedItems.map(item => {
+        if (item.type === 'active') {
+            const alert = item.data;
+            const endTime = new Date(alert.endTime);
+            const remainingSeconds = Math.max(0, Math.floor((endTime.getTime() - Date.now()) / 1000));
+            const remainingText = remainingSeconds > 0 ? formatDuration(remainingSeconds) : '即将触发';
+
+            return `
+                <div class="alert-item active">
+                    <div class="alert-status">🟢</div>
+                    <div class="alert-info">
+                        <div class="alert-label">${alert.label}</div>
+                        <div class="alert-time">生效中 · ${formatAlarmDateTime(alert.endTime)} 到期 · 剩余 ${remainingText}</div>
                     </div>
-                </div>
-                ${isActive ? `
                     <button class="alert-cancel" onclick="cancelTimer('${alert.id}')">✕</button>
-                ` : `
-                    <button class="alert-restart" onclick="restartTimer('${alert.id}')">🔄</button>
-                `}
+                </div>
+            `;
+        }
+
+        const history = item.data;
+        const plant = history.plant ? PLANTS_DATABASE[history.plant] : null;
+        const emoji = plant?.emoji || '⏰';
+        const duration = formatDuration(history.totalSeconds);
+
+        return `
+            <div class="alert-item history" onclick="restartFromHistory('${history.id}')">
+                <div class="alert-status">${emoji}</div>
+                <div class="alert-info">
+                    <div class="alert-label">${history.label}</div>
+                    <div class="alert-time">已触发 · ${formatAlarmDateTime(history.triggeredAt)} · ⏱️ ${duration || '—'}</div>
+                </div>
+                <button class="alert-restart" onclick="event.stopPropagation(); restartFromHistory('${history.id}')">🔄</button>
             </div>
         `;
     }).join('');
+}
+
+function renderAlertsList() {
+    renderAlarmFeed();
 }
 
 function restartTimer(id) {
@@ -1176,7 +1371,7 @@ function restartTimer(id) {
     state.alerts.push(timer);
     saveState();
     renderRunningTimers();
-    renderAlertsList();
+    renderAlarmFeed();
     showToast('🔄 已重新启动定时器');
 }
 
@@ -1187,64 +1382,13 @@ function clearAllAlerts() {
     state.alerts = [];
     saveState();
     renderRunningTimers();
-    renderAlertsList();
+    renderAlarmFeed();
     showToast('已清除所有闹钟');
 }
 
 // ========== 历史记录 ==========
 function renderHistoryList() {
-    const list = document.getElementById('history-list');
-    const countEl = document.getElementById('history-count');
-    const clearWrap = document.getElementById('history-clear-wrap');
-    if (!list) return;
-
-    // 按触发时间倒序
-    const sorted = [...state.history].reverse();
-
-    if (countEl) countEl.textContent = `${sorted.length}条`;
-    if (clearWrap) clearWrap.style.display = sorted.length > 0 ? 'block' : 'none';
-
-    if (sorted.length === 0) {
-        list.innerHTML = '<p class="empty-text">暂无历史记录</p>';
-        return;
-    }
-
-    // 按日期分组
-    const groups = {};
-    sorted.forEach(item => {
-        const triggered = new Date(item.triggeredAt);
-        const dateKey = triggered.toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'short' });
-        if (!groups[dateKey]) groups[dateKey] = [];
-        groups[dateKey].push(item);
-    });
-
-    let html = '';
-    Object.entries(groups).forEach(([dateLabel, items]) => {
-        html += `<div class="history-date-label">${dateLabel}</div>`;
-        items.forEach(item => {
-            const triggered = new Date(item.triggeredAt);
-            const timeStr = triggered.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
-            const plant = item.plant ? PLANTS_DATABASE[item.plant] : null;
-            const emoji = plant?.emoji || '⏰';
-            const duration = formatDuration(item.totalSeconds);
-
-            html += `
-                <div class="history-item" onclick="restartFromHistory('${item.id}')">
-                    <div class="history-icon">${emoji}</div>
-                    <div class="history-info">
-                        <div class="history-label">${item.label}</div>
-                        <div class="history-meta">
-                            <span>⏱️ ${duration}</span>
-                            <span>🔔 ${timeStr} 触发</span>
-                        </div>
-                    </div>
-                    <div class="history-restart" title="重新设置">🔄</div>
-                </div>
-            `;
-        });
-    });
-
-    list.innerHTML = html;
+    renderAlarmFeed();
 }
 
 function formatDuration(seconds) {

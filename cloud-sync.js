@@ -24,6 +24,7 @@ const CloudSync = {
         const sendKeyInput = document.getElementById('send-key-input');
         const tokenStatus = document.getElementById('token-status');
         const sendkeyStatus = document.getElementById('sendkey-status');
+        const syncIcon = document.getElementById('header-sync-icon');
 
         if (tokenInput && this.token) {
             tokenInput.value = this.token;
@@ -60,8 +61,16 @@ const CloudSync = {
                 statusEl.className = 'sync-status';
             }
         }
-        // 同步更新闹钟列表页的状态栏
-        updateSyncStatusBar();
+        // 更新顶部同步按钮图标状态
+        if (syncIcon) {
+            if (this.token && this.gistId) {
+                syncIcon.textContent = '☁️';
+            } else if (this.token) {
+                syncIcon.textContent = '⏳';
+            } else {
+                syncIcon.textContent = '☁️';
+            }
+        }
     },
 
     // ========== 保存配置 ==========
@@ -173,9 +182,13 @@ const CloudSync = {
 
         try {
             const gistId = await this.ensureGist();
+            // 收集自定义植物数据
+            const customPlants = Object.values(PLANTS_DATABASE).filter(p => p.isCustom);
             const payload = {
                 alerts: alarms,
-                history: state.history.slice(-200)
+                history: state.history.slice(-200),
+                customPlants: customPlants,
+                settings: state.settings
             };
             const data = {
                 files: {
@@ -208,13 +221,18 @@ const CloudSync = {
             if (dataFile) {
                 const content = dataFile.content;
                 const parsed = JSON.parse(content);
-                // 新版返回 { alerts, history }，旧版返回纯数组
+                // 新版返回 { alerts, history, customPlants, settings }，旧版返回纯数组
                 if (Array.isArray(parsed)) {
-                    return { alerts: parsed, history: [] };
+                    return { alerts: parsed, history: [], customPlants: [], settings: null };
                 }
-                return { alerts: parsed.alerts || [], history: parsed.history || [] };
+                return {
+                    alerts: parsed.alerts || [],
+                    history: parsed.history || [],
+                    customPlants: parsed.customPlants || [],
+                    settings: parsed.settings || null
+                };
             }
-            return { alerts: [], history: [] };
+            return { alerts: [], history: [], customPlants: [], settings: null };
         } catch (e) {
             console.error('拉取数据失败:', e);
             showToast('❌ 云同步失败: ' + e.message);
@@ -259,55 +277,114 @@ const CloudSync = {
             return;
         }
 
+        // 顶部按钮动画
+        const syncBtn = document.getElementById('header-sync-btn');
+        const syncIcon = document.getElementById('header-sync-icon');
+        if (syncBtn) syncBtn.classList.add('syncing');
+
         showToast('🔄 正在同步...');
 
-        // 先拉取云端数据
-        const cloudData = await this.pullAlarms();
-        if (cloudData === null) return;
+        try {
+            // 先拉取云端数据
+            const cloudData = await this.pullAlarms();
+            if (cloudData === null) return;
 
-        const cloudAlarms = cloudData.alerts || [];
-        const cloudHistory = cloudData.history || [];
+            const cloudAlarms = cloudData.alerts || [];
+            const cloudHistory = cloudData.history || [];
+            const cloudCustomPlants = cloudData.customPlants || [];
+            const cloudSettings = cloudData.settings || null;
 
-        // 合并策略：以云端为准，但保留本地运行中的定时器
-        const now = new Date();
-        
-        // 清理本地过期闹钟
-        state.alerts = state.alerts.filter(a => {
-            if (state.timers[a.id]) return true;
-            return new Date(a.endTime) > now;
-        });
+            // 合并策略：以云端为准，但保留本地运行中的定时器
+            const now = new Date();
+            
+            // 清理本地过期闹钟
+            state.alerts = state.alerts.filter(a => {
+                if (state.timers[a.id]) return true;
+                return new Date(a.endTime) > now;
+            });
 
-        // 用云端数据替换本地（仅未过期的）
-        const activeCloudAlarms = cloudAlarms.filter(a => {
-            if (a.pushNotified) return false;
-            return new Date(a.endTime) > now;
-        });
+            // 用云端数据替换本地（仅未过期的）
+            const activeCloudAlarms = cloudAlarms.filter(a => {
+                if (a.pushNotified) return false;
+                return new Date(a.endTime) > now;
+            });
 
-        // 合并闹钟：云端 + 本地运行中的
-        activeCloudAlarms.forEach(a => {
-            if (!state.timers[a.id]) {
-                state.timers[a.id] = a;
+            // 合并闹钟：云端 + 本地运行中的
+            activeCloudAlarms.forEach(a => {
+                if (!state.timers[a.id]) {
+                    state.timers[a.id] = a;
+                }
+            });
+            state.alerts = [...activeCloudAlarms];
+
+            // 合并历史记录：本地 + 云端，按 triggeredAt 去重，取最新200条
+            const existingHistoryIds = new Set(state.history.map(h => h.id));
+            cloudHistory.forEach(h => {
+                if (!existingHistoryIds.has(h.id)) {
+                    state.history.push(h);
+                    existingHistoryIds.add(h.id);
+                }
+            });
+            state.history = state.history.slice(-200);
+
+            // 合并自定义植物：云端 + 本地，按名称去重
+            let customPlantMerged = false;
+            if (cloudCustomPlants.length > 0) {
+                cloudCustomPlants.forEach(p => {
+                    if (p.name && !PLANTS_DATABASE[p.name]) {
+                        PLANTS_DATABASE[p.name] = typeof normalizePlantRecord === 'function'
+                            ? normalizePlantRecord({ ...p, isCustom: true }, { isCustom: true })
+                            : {
+                                ...p,
+                                isCustom: true,
+                                growthTime: p.firstTime || p.growthTime || 0
+                            };
+                        customPlantMerged = true;
+                    }
+                });
+                // 保存合并后的自定义植物
+                if (typeof saveCustomPlants === 'function') saveCustomPlants();
             }
-        });
-        state.alerts = [...activeCloudAlarms];
 
-        // 合并历史记录：本地 + 云端，按 triggeredAt 去重，取最新200条
-        const existingHistoryIds = new Set(state.history.map(h => h.id));
-        cloudHistory.forEach(h => {
-            if (!existingHistoryIds.has(h.id)) {
-                state.history.push(h);
-                existingHistoryIds.add(h.id);
+            // 合并设置：以云端的为准（如果云端有的话）
+            if (cloudSettings) {
+                state.settings = { ...state.settings, ...cloudSettings };
+                // 更新设置UI
+                setTimeout(() => {
+                    const vol = document.getElementById('volume-slider');
+                    const sound = document.getElementById('notify-sound');
+                    const vib = document.getElementById('notify-vibrate');
+                    const push = document.getElementById('notify-push');
+                    const alarmSel = document.getElementById('alarm-sound-select');
+                    if (vol) vol.value = state.settings.volume;
+                    if (sound) sound.checked = state.settings.notifySound;
+                    if (vib) vib.checked = state.settings.notifyVibrate;
+                    if (push) push.checked = state.settings.notifyPush;
+                    if (alarmSel) alarmSel.value = state.settings.alarmSound;
+                }, 100);
             }
-        });
-        state.history = state.history.slice(-200);
 
-        saveState();
-        renderRunningTimers();
-        renderAlertsList();
-        renderHistoryList();
-        this.updateUI();
+            // 推送本地数据到云端（包含合并后的结果）
+            await this.pushAlarms(state.alerts);
 
-        showToast(`✅ 同步完成！${state.alerts.length} 个闹钟，${state.history.length} 条历史`);
+            saveState();
+            renderRunningTimers();
+            renderAlertsList();
+            renderHistoryList();
+            if (customPlantMerged) {
+                renderPlantGrid(document.getElementById('plant-search-input')?.value || '');
+                if (typeof renderCustomPlantsList === 'function') renderCustomPlantsList();
+                if (typeof populatePlantSelects === 'function') populatePlantSelects();
+            }
+            this.updateUI();
+
+            const parts = [`${state.alerts.length}个闹钟`, `${state.history.length}条历史`];
+            const customCount = Object.values(PLANTS_DATABASE).filter(p => p.isCustom).length;
+            if (customCount > 0) parts.push(`${customCount}个自定义植物`);
+            showToast(`✅ 同步完成！${parts.join('，')}`);
+        } finally {
+            if (syncBtn) syncBtn.classList.remove('syncing');
+        }
     },
 
     // ========== 断开连接 ==========
