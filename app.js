@@ -703,39 +703,7 @@ function cancelTimer(id) {
 }
 
 function renderRunningTimers() {
-    const container = document.getElementById('running-timers');
-    const card = document.getElementById('running-timers-card');
-    const now = Date.now();
-    
-    const activeTimers = Object.values(state.timers).filter(t => new Date(t.endTime) > new Date(now));
-    
-    if (activeTimers.length === 0) {
-        card.style.display = 'none';
-        return;
-    }
-    
-    card.style.display = 'block';
-    container.innerHTML = activeTimers.map(timer => {
-        const remaining = Math.max(0, Math.floor((new Date(timer.endTime) - now) / 1000));
-        const h = Math.floor(remaining / 3600);
-        const m = Math.floor((remaining % 3600) / 60);
-        const s = remaining % 60;
-        const progress = 1 - (remaining / timer.totalSeconds);
-        
-        return `
-            <div class="timer-item">
-                <div class="timer-info">
-                    <span class="timer-label">${timer.label}</span>
-                    <span class="timer-remaining">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width:${progress * 100}%"></div>
-                </div>
-                <div class="timer-end-time">🕐 ${new Date(timer.endTime).toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })} 到期</div>
-                <button class="cancel-btn" onclick="cancelTimer('${timer.id}')">取消</button>
-            </div>
-        `;
-    }).join('');
+    renderAlertsList();
 }
 
 // ========== 定时器循环检查 ==========
@@ -1413,16 +1381,29 @@ function renderAlarmFeed() {
             const alert = item.data;
             const endTime = new Date(alert.endTime);
             const remainingSeconds = Math.max(0, Math.floor((endTime.getTime() - Date.now()) / 1000));
-            const remainingText = remainingSeconds > 0 ? formatDuration(remainingSeconds) : '即将触发';
+            const h = Math.floor(remainingSeconds / 3600);
+            const m = Math.floor((remainingSeconds % 3600) / 60);
+            const s = remainingSeconds % 60;
+            const progress = alert.totalSeconds > 0
+                ? Math.min(1, Math.max(0, 1 - (remainingSeconds / alert.totalSeconds)))
+                : 0;
 
             return `
-                <div class="alert-item active">
-                    <div class="alert-status">🟢</div>
-                    <div class="alert-info">
-                        <div class="alert-label">${alert.label}</div>
-                        <div class="alert-time">生效中 · ${formatAlarmDateTime(alert.endTime)} 到期 · 剩余 ${remainingText}</div>
+                <div class="alert-item active timer-feed-item">
+                    <div class="timer-item active-timer-card">
+                        <div class="timer-item-top">
+                            <span class="timer-status-pill">🟢 生效中</span>
+                            <button class="cancel-btn" onclick="cancelTimer('${alert.id}')">取消</button>
+                        </div>
+                        <div class="timer-info">
+                            <span class="timer-label">${alert.label}</span>
+                            <span class="timer-remaining">${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width:${progress * 100}%"></div>
+                        </div>
+                        <div class="timer-end-time">🕐 ${formatAlarmDateTime(alert.endTime)} 到期</div>
                     </div>
-                    <button class="alert-cancel" onclick="cancelTimer('${alert.id}')">✕</button>
                 </div>
             `;
         }
