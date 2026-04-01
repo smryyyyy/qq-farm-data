@@ -124,13 +124,17 @@ def main():
         print("❌ 闹钟数据格式错误")
         return
 
-    # 兼容旧版纯数组和新版 { alerts, history } 格式
+    # 兼容旧版纯数组和新版 { alerts, history, customPlants, settings } 格式
     if isinstance(parsed, list):
         alarms = parsed
         cloud_history = []
+        cloud_custom_plants = []
+        cloud_settings = None
     else:
         alarms = parsed.get("alerts", [])
         cloud_history = parsed.get("history", [])
+        cloud_custom_plants = parsed.get("customPlants", [])
+        cloud_settings = parsed.get("settings", None)
 
     if not isinstance(alarms, list) or len(alarms) == 0:
         print("💤 闹钟列表为空，跳过")
@@ -196,6 +200,8 @@ def main():
         payload = {
             "alerts": updated_alarms,
             "history": cloud_history,
+            "customPlants": cloud_custom_plants,
+            "settings": cloud_settings,
         }
         update_data = {
             "files": {

@@ -366,11 +366,9 @@ const CloudSync = {
         }
     },
 
-    // ========== 测试推送 ==========
-    async testPush() {
+    async sendServerChanMessage(title, desp) {
         if (!this.sendKey) {
-            showToast('❌ 请先配置 Server酱 SendKey');
-            return false;
+            return { ok: false, message: '请先配置 Server酱 SendKey' };
         }
 
         try {
@@ -379,21 +377,52 @@ const CloudSync = {
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `title=${encodeURIComponent('🌾 农场计时器测试')}&desp=${encodeURIComponent('推送功能正常！你将收到这条测试消息。')}`
+                    body: `title=${encodeURIComponent(title)}&desp=${encodeURIComponent(desp)}`
                 }
             );
             const result = await resp.json();
             if (result.code === 0) {
-                showToast('✅ 推送测试成功！请检查微信');
-                return true;
-            } else {
-                showToast('❌ 推送失败: ' + (result.message || '未知错误'));
-                return false;
+                return { ok: true, result };
             }
+            return { ok: false, message: result.message || '未知错误', result };
         } catch (e) {
-            showToast('❌ 推送请求失败: ' + e.message);
-            return false;
+            return { ok: false, message: e.message || '请求失败' };
         }
+    },
+
+    async sendAlarmPush(alarm, options = {}) {
+        const label = alarm?.label || '定时器';
+        const plantName = alarm?.plant || '';
+        const triggeredAt = options.triggeredAt ? new Date(options.triggeredAt) : new Date();
+        const timeText = Number.isNaN(triggeredAt.getTime())
+            ? new Date().toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' })
+            : triggeredAt.toLocaleTimeString('zh-CN', { hour: '2-digit', minute: '2-digit' });
+        const message = options.message || (plantName
+            ? `${plantName}成熟了！快去收菜！`
+            : `${label} 已到时间。`);
+        const desp = [
+            `**${label}**`,
+            '',
+            message,
+            '',
+            `触发时间：${timeText}`,
+            plantName ? `作物：${plantName}` : null
+        ].filter(Boolean).join('\n');
+
+        const result = await this.sendServerChanMessage('🌾 农场收菜提醒', desp);
+        return result.ok;
+    },
+
+    // ========== 测试推送 ==========
+    async testPush() {
+        const result = await this.sendServerChanMessage('🌾 农场计时器测试', '推送功能正常！你将收到这条测试消息。');
+        if (result.ok) {
+            showToast('✅ 推送测试成功！请检查微信');
+            return true;
+        }
+
+        showToast('❌ 推送失败: ' + result.message);
+        return false;
     },
 
     // ========== 手动同步 ==========

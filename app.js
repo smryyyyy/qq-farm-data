@@ -12,6 +12,7 @@ let state = {
         notifySound: true,
         notifyVibrate: false,
         notifyPush: true,
+        notifyWeChat: true,
         alarmSound: 'classic'
     },
     voiceActive: false,
@@ -38,6 +39,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initSeasonHint();
     initPWA();
     selectLand(state.selectedLand || 'gold');
+    updateStickyOffsets();
+
+    window.addEventListener('resize', updateStickyOffsets);
 
     // 每秒更新运行中的定时器显示
     setInterval(renderRunningTimers, 1000);
@@ -59,6 +63,25 @@ function updateSyncStatusBar() {
     } else {
         syncIcon.textContent = '☁️';
         syncIcon.title = '未连接（去设置中配置云同步）';
+    }
+}
+
+function updateStickyOffsets() {
+    const root = document.documentElement;
+    const header = document.querySelector('.app-header');
+    const tabNav = document.querySelector('.tab-nav');
+
+    const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 0;
+    const tabHeight = tabNav ? Math.round(tabNav.getBoundingClientRect().height) : 0;
+
+    if (headerHeight > 0) {
+        root.style.setProperty('--header-sticky-height', `${headerHeight}px`);
+    }
+    if (tabHeight > 0) {
+        root.style.setProperty('--tab-sticky-height', `${tabHeight}px`);
+    }
+    if (headerHeight > 0 || tabHeight > 0) {
+        root.style.setProperty('--plant-sticky-top', `${headerHeight + tabHeight}px`);
     }
 }
 
@@ -118,6 +141,8 @@ function archiveAlertToHistory(alert, triggeredAt = null) {
         endTime: alert.endTime,
         totalSeconds: alert.totalSeconds,
         triggeredAt: triggeredAt || alert.triggeredAt || alert.endTime || new Date().toISOString(),
+        pushNotified: Boolean(alert.pushNotified),
+        pushNotifiedAt: alert.pushNotifiedAt || null,
         ...(inferredLand ? { land: inferredLand } : {})
     };
 
@@ -134,6 +159,14 @@ function archiveAlertToHistory(alert, triggeredAt = null) {
 
     state.history.push(historyItem);
     state.history = sortHistoryItems(state.history).slice(-200);
+    return true;
+}
+
+function markHistoryPushNotified(id, notifiedAt = new Date().toISOString()) {
+    const historyItem = state.history.find(item => item.id === id);
+    if (!historyItem) return false;
+    historyItem.pushNotified = true;
+    historyItem.pushNotifiedAt = notifiedAt;
     return true;
 }
 
@@ -226,6 +259,7 @@ function switchTab(tabName) {
     document.querySelectorAll('.tab-content').forEach(content => {
         content.classList.toggle('active', content.id === `tab-${tabName}`);
     });
+    requestAnimationFrame(updateStickyOffsets);
 }
 
 // ========== 滚轮时间选择器 ==========
@@ -760,28 +794,29 @@ function triggerAlarm(timer) {
     // 防重入：同一个闹钟只触发一次
     if (triggeredAlarmIds.has(timer.id)) return;
     triggeredAlarmIds.add(timer.id);
-    
-    const message = timer.plant 
-        ? `${PLANTS_DATABASE[timer.plant]?.emoji || '🌱'} ${timer.plant || '植物'}成熟了！快去收菜！` 
+
+    const triggeredAt = new Date().toISOString();
+    const message = timer.plant
+        ? `${PLANTS_DATABASE[timer.plant]?.emoji || '🌱'} ${timer.plant || '植物'}成熟了！快去收菜！`
         : `⏰ 定时结束！${timer.label}`;
-    
+
     // 写入历史记录并从当前闹钟中移除
-    archiveAlertToHistory(timer, new Date().toISOString());
+    archiveAlertToHistory(timer, triggeredAt);
     delete state.timers[timer.id];
     state.alerts = state.alerts.filter(alert => alert.id !== timer.id);
     saveState();
     renderRunningTimers();
     renderAlertsList();
-    
+
     // 显示弹窗
     document.getElementById('alarm-message').textContent = message;
     document.getElementById('alarm-overlay').style.display = 'flex';
-    
+
     // 播放声音
     if (state.settings.notifySound) {
         playAlarmSound();
     }
-    
+
     // 浏览器通知
     if (state.settings.notifyPush && Notification.permission === 'granted') {
         const notification = new Notification('🌾 农场收菜提醒', {
@@ -795,7 +830,19 @@ function triggerAlarm(timer) {
             dismissAlarm();
         };
     }
-    
+
+    // 微信推送：页面在线时直接补发，后台定时任务继续做兜底
+    if (state.settings.notifyWeChat !== false && typeof CloudSync?.sendAlarmPush === 'function') {
+        CloudSync.sendAlarmPush(timer, { message, triggeredAt }).then(sent => {
+            if (!sent) return;
+            if (markHistoryPushNotified(timer.id, new Date().toISOString())) {
+                saveState();
+            }
+        }).catch(error => {
+            console.warn('微信推送补发失败:', error);
+        });
+    }
+
     // 震动
     if (state.settings.notifyVibrate && navigator.vibrate) {
         navigator.vibrate([200, 100, 200, 100, 200]);
@@ -1595,12 +1642,14 @@ function refreshSettingsForm() {
         const sound = document.getElementById('notify-sound');
         const vibrate = document.getElementById('notify-vibrate');
         const push = document.getElementById('notify-push');
+        const wechat = document.getElementById('notify-wechat');
         const alarmSound = document.getElementById('alarm-sound-select');
 
         if (volume) volume.value = state.settings.volume;
         if (sound) sound.checked = state.settings.notifySound;
         if (vibrate) vibrate.checked = state.settings.notifyVibrate;
         if (push) push.checked = state.settings.notifyPush;
+        if (wechat) wechat.checked = state.settings.notifyWeChat !== false;
         if (alarmSound) alarmSound.value = state.settings.alarmSound;
     }, 100);
 }
@@ -1619,7 +1668,16 @@ function updateAlarmSound(value) {
 }
 
 function updateNotifySetting(key) {
-    state.settings[key] = document.getElementById(key).checked;
+    const inputIdMap = {
+        notifySound: 'notify-sound',
+        notifyVibrate: 'notify-vibrate',
+        notifyPush: 'notify-push',
+        notifyWeChat: 'notify-wechat'
+    };
+    const input = document.getElementById(inputIdMap[key] || key);
+    if (!input) return;
+
+    state.settings[key] = input.checked;
     saveState();
 
     if (key === 'notifyPush' && state.settings[key]) {
