@@ -1342,6 +1342,13 @@ function formatAlarmDateTime(dateStr) {
     });
 }
 
+function formatAlarmTime(dateStr) {
+    return new Date(dateStr).toLocaleTimeString('zh-CN', {
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
 function getAlarmFeedItems() {
     const activeItems = state.alerts
         .filter(alert => state.timers[alert.id])
@@ -1384,8 +1391,13 @@ function renderAlarmFeed() {
             const h = Math.floor(remainingSeconds / 3600);
             const m = Math.floor((remainingSeconds % 3600) / 60);
             const s = remainingSeconds % 60;
-            const progress = alert.totalSeconds > 0
-                ? Math.min(1, Math.max(0, 1 - (remainingSeconds / alert.totalSeconds)))
+            const createdAt = alert.createdAt ? new Date(alert.createdAt) : null;
+            const derivedTotalSeconds = createdAt && !Number.isNaN(createdAt.getTime())
+                ? Math.max(1, Math.floor((endTime.getTime() - createdAt.getTime()) / 1000))
+                : 0;
+            const totalSeconds = Number(alert.totalSeconds) > 0 ? Number(alert.totalSeconds) : derivedTotalSeconds;
+            const progress = totalSeconds > 0
+                ? Math.min(1, Math.max(0, 1 - (remainingSeconds / totalSeconds)))
                 : 0;
 
             return `
@@ -1402,7 +1414,7 @@ function renderAlarmFeed() {
                         <div class="progress-bar">
                             <div class="progress-fill" style="width:${progress * 100}%"></div>
                         </div>
-                        <div class="timer-end-time">🕐 ${formatAlarmDateTime(alert.endTime)} 到期</div>
+                        <div class="timer-end-time">🕐 ${formatAlarmTime(alert.endTime)} 到期</div>
                     </div>
                 </div>
             `;
