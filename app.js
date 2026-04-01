@@ -1919,7 +1919,12 @@ function updatePwaInstallUI(forceInstalled = false) {
         btn.disabled = false;
 
         if (isInstalled) {
-            const shouldKeepGuideEntry = !isHeaderBtn && !notificationReady;
+            if (isHeaderBtn) {
+                btn.hidden = true;
+                return;
+            }
+
+            const shouldKeepGuideEntry = !notificationReady;
             btn.disabled = !shouldKeepGuideEntry;
             btn.title = shouldKeepGuideEntry ? '查看通知指引' : '已安装到桌面';
             if (textEl) textEl.textContent = shouldKeepGuideEntry ? '开启通知' : '已安装';
@@ -1933,6 +1938,8 @@ function updatePwaInstallUI(forceInstalled = false) {
                 : (pwaInstallReady ? '添加到桌面' : '查看安装方法');
         }
     });
+
+    requestAnimationFrame(updateStickyOffsets);
 
     if (installBadge) {
         installBadge.className = 'pwa-badge';
