@@ -978,20 +978,20 @@ function renderPlantGrid(filter = '') {
     grid.innerHTML = plants.map(plant => {
         const growTime = calcGrowTime(plant.name, landType);
         const totalTime = calcTotalGrowTime(plant.name, landType);
-        const seasonsInfo = plant.seasons > 1 
-            ? `<span class="plant-seasons">${plant.seasons}季 · 总${totalTime}h</span>` 
-            : '';
+        const seasonsInfo = plant.seasons > 1
+            ? `${plant.seasons}季·总${totalTime}h`
+            : '单季';
+        const seasonsClass = plant.seasons > 1 ? 'plant-seasons' : 'plant-seasons is-placeholder';
         
         return `
         <div class="plant-card" onclick="startPlantTimer('${plant.name}')">
             <div class="plant-emoji">${plant.emoji}</div>
             <div class="plant-name">${plant.name}</div>
-            <div class="plant-time">${growTime}小时${plant.seasons > 1 ? ' (首季)' : ''}</div>
-            ${seasonsInfo}
+            <div class="plant-time">${growTime}小时${plant.seasons > 1 ? '(首季)' : ''}</div>
+            <span class="${seasonsClass}">${seasonsInfo}</span>
             <div class="plant-level">Lv.${plant.level}</div>
             <div class="plant-profit">
                 <span class="coin">💰${plant.sellPrice}</span>
-                <span class="exp">⭐${plant.exp}</span>
             </div>
         </div>
     `}).join('');
