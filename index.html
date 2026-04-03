@@ -65,7 +65,7 @@
                     <div class="wheel-group">
                         <div class="wheel-container" id="hour-wheel">
                             <button class="wheel-btn up" onclick="wheelAdjust('hour', 1)">▲</button>
-                            <div class="wheel-display" id="hour-display">00</div>
+                            <input type="number" class="wheel-input" id="hour-input" value="0" min="0" max="72" step="1" onclick="this.select()" oninput="handleWheelInput('hour', this.value)" onblur="handleWheelBlur('hour', this.value)" onkeydown="handleWheelKeydown(event, 'hour')">
                             <button class="wheel-btn down" onclick="wheelAdjust('hour', -1)">▼</button>
                         </div>
                         <span class="wheel-sep">时</span>
@@ -73,7 +73,7 @@
                     <div class="wheel-group">
                         <div class="wheel-container" id="minute-wheel">
                             <button class="wheel-btn up" onclick="wheelAdjust('minute', 1)">▲</button>
-                            <div class="wheel-display" id="minute-display">00</div>
+                            <input type="number" class="wheel-input" id="minute-input" value="0" min="0" max="59" step="1" onclick="this.select()" oninput="handleWheelInput('minute', this.value)" onblur="handleWheelBlur('minute', this.value)" onkeydown="handleWheelKeydown(event, 'minute')">
                             <button class="wheel-btn down" onclick="wheelAdjust('minute', -1)">▼</button>
                         </div>
                         <span class="wheel-sep">分</span>

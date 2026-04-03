@@ -300,6 +300,39 @@ body {
     user-select: none;
 }
 
+.wheel-input {
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    background: var(--bg-primary);
+    border-radius: 12px;
+    transition: all 0.15s;
+    text-align: center;
+    border: 2px solid transparent;
+    outline: none;
+    -moz-appearance: textfield;
+}
+
+.wheel-input::-webkit-outer-spin-button,
+.wheel-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.wheel-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+.wheel-input:hover {
+    border-color: rgba(76, 175, 80, 0.3);
+}
+
 .wheel-sep {
     font-size: 12px;
     color: var(--text-muted);

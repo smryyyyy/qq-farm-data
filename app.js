@@ -268,10 +268,11 @@ let wheelValues = { hour: 0, minute: 0 };
 function initScrollWheels() {
     // 鼠标滚轮支持
     ['hour', 'minute'].forEach(type => {
-        const display = document.getElementById(`${type}-display`);
-        if (!display) return;
-        
-        display.addEventListener('wheel', (e) => {
+        const input = document.getElementById(`${type}-input`);
+        if (!input) return;
+
+        // 鼠标滚轮事件
+        input.addEventListener('wheel', (e) => {
             e.preventDefault();
             const delta = e.deltaY < 0 ? 1 : -1;
             wheelAdjust(type, delta);
@@ -279,7 +280,7 @@ function initScrollWheels() {
 
         // 长按支持（使用独立变量避免冲突）
         const state = { pressTimer: null, pressInterval: null };
-        
+
         const startPress = (direction) => {
             wheelAdjust(type, direction);
             state.pressTimer = setTimeout(() => {
@@ -294,51 +295,84 @@ function initScrollWheels() {
             clearInterval(state.pressInterval);
         };
 
-        const upBtn = display.parentElement.querySelector('.up');
-        const downBtn = display.parentElement.querySelector('.down');
-        
+        const upBtn = input.parentElement.querySelector('.up');
+        const downBtn = input.parentElement.querySelector('.down');
+
         upBtn.addEventListener('mousedown', () => startPress(1));
         upBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startPress(1); });
         downBtn.addEventListener('mousedown', () => startPress(-1));
         downBtn.addEventListener('touchstart', (e) => { e.preventDefault(); startPress(-1); });
-        
+
         document.addEventListener('mouseup', endPress);
         document.addEventListener('touchend', endPress);
     });
 }
 
+function handleWheelInput(type, value) {
+    const max = { hour: 72, minute: 59 };
+    const numValue = parseInt(value) || 0;
+    const clampedValue = Math.max(0, Math.min(max[type], numValue));
+    wheelValues[type] = clampedValue;
+    updateWheelDisplay(type, clampedValue);
+}
+
+function handleWheelBlur(type, value) {
+    const max = { hour: 72, minute: 59 };
+    const numValue = parseInt(value) || 0;
+    const clampedValue = Math.max(0, Math.min(max[type], numValue));
+    wheelValues[type] = clampedValue;
+    updateWheelDisplay(type, clampedValue);
+}
+
+function handleWheelKeydown(event, type) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        event.target.blur();
+        startTimer();
+    }
+}
+
+function updateWheelDisplay(type, value) {
+    const input = document.getElementById(`${type}-input`);
+    if (!input) return;
+
+    input.value = value;
+    input.style.transform = 'scale(1.1)';
+    input.style.color = '#4CAF50';
+    setTimeout(() => {
+        input.style.transform = 'scale(1)';
+        input.style.color = '';
+    }, 150);
+}
+
 function wheelAdjust(type, delta) {
     const max = { hour: 72, minute: 59 };
     const step = 1;
-    
+
     wheelValues[type] += delta * step;
     if (wheelValues[type] < 0) wheelValues[type] = max[type];
     if (wheelValues[type] > max[type]) wheelValues[type] = 0;
-    
-    const display = document.getElementById(`${type}-display`);
-    if (!display) return;
-    display.textContent = String(wheelValues[type]).padStart(2, '0');
-    display.style.transform = 'scale(1.1)';
-    setTimeout(() => { display.style.transform = 'scale(1)'; }, 150);
+
+    updateWheelDisplay(type, wheelValues[type]);
 }
 
 function setQuickTime(seconds) {
     const totalMinutes = Math.max(0, Math.ceil(seconds / 60));
     const h = Math.floor(totalMinutes / 60);
     const m = totalMinutes % 60;
-    
+
     wheelValues.hour = h;
     wheelValues.minute = m;
-    
-    document.getElementById('hour-display').textContent = String(h).padStart(2, '0');
-    document.getElementById('minute-display').textContent = String(m).padStart(2, '0');
-    
+
+    updateWheelDisplay('hour', h);
+    updateWheelDisplay('minute', m);
+
     // 视觉反馈
-    document.querySelectorAll('.wheel-display').forEach(el => {
+    document.querySelectorAll('.wheel-input').forEach(el => {
         el.style.transform = 'scale(1.15)';
         el.style.color = '#4CAF50';
-        setTimeout(() => { 
-            el.style.transform = 'scale(1)'; 
+        setTimeout(() => {
+            el.style.transform = 'scale(1)';
             el.style.color = '';
         }, 300);
     });
@@ -1552,11 +1586,14 @@ function getAlarmFeedItems() {
             data: alert
         }));
 
-    const historyItems = state.history.map(item => ({
-        type: 'history',
-        sortTime: new Date(item.triggeredAt || item.endTime).getTime(),
-        data: item
-    }));
+    const historyItems = state.history
+        .map(item => ({
+            type: 'history',
+            sortTime: new Date(item.triggeredAt || item.endTime).getTime(),
+            data: item
+        }))
+        .sort((a, b) => b.sortTime - a.sortTime)
+        .slice(0, 3); // 只显示最近3条历史记录
 
     return [...activeItems, ...historyItems].sort((a, b) => b.sortTime - a.sortTime);
 }
