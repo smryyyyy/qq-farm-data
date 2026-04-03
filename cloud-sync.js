@@ -409,8 +409,22 @@ const CloudSync = {
             plantName ? `作物：${plantName}` : null
         ].filter(Boolean).join('\n');
 
+        if (!this.sendKey) {
+            return {
+                ok: false,
+                reason: 'missing-sendkey',
+                message: '当前设备未配置 Server酱 SendKey；若仓库 Secrets 已配置，GitHub Actions 仍会尝试补发'
+            };
+        }
+
         const result = await this.sendServerChanMessage('🌾 农场收菜提醒', desp);
-        return result.ok;
+        return {
+            ok: result.ok,
+            reason: result.ok ? null : 'request-failed',
+            message: result.ok ? '' : (result.message || '微信推送发送失败'),
+            result: result.result || null,
+            notifiedAt: result.ok ? new Date().toISOString() : null
+        };
     },
 
     // ========== 测试推送 ==========

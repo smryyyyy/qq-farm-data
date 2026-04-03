@@ -136,24 +136,40 @@ def main():
         cloud_custom_plants = parsed.get("customPlants", [])
         cloud_settings = parsed.get("settings", None)
 
-    if not isinstance(alarms, list) or len(alarms) == 0:
-        print("💤 闹钟列表为空，跳过")
-        return
+    if not isinstance(alarms, list):
+        alarms = []
+    if not isinstance(cloud_history, list):
+        cloud_history = []
 
-    print(f"共有 {len(alarms)} 个闹钟")
+    print(f"活动闹钟 {len(alarms)} 个，历史记录 {len(cloud_history)} 条")
+
+    def parse_cloud_time(raw_value):
+        if not raw_value:
+            return None
+        try:
+            return datetime.fromisoformat(str(raw_value).replace("Z", "+00:00")).astimezone(CST)
+        except (ValueError, TypeError):
+            return None
 
     # 3. 检查到期闹钟
-    notified_ids = []
-    expired_ids = []
+    notified_ids = set()
+    history_notified_ids = set()
+    expired_ids = set()
+    existing_history_ids = {
+        item.get("id")
+        for item in cloud_history
+        if isinstance(item, dict) and item.get("id")
+    }
 
     for alarm in alarms:
-        if not alarm.get("endTime"):
+        if not isinstance(alarm, dict) or not alarm.get("endTime"):
             continue
 
-        try:
-            end_time = datetime.fromisoformat(alarm["endTime"].replace("Z", "+00:00")).astimezone(CST)
-        except (ValueError, TypeError):
+        end_time = parse_cloud_time(alarm.get("endTime"))
+        if end_time is None:
             continue
+
+        alarm_id = alarm.get("id")
 
         # 到期但未推送
         if end_time <= now and not alarm.get("pushNotified"):
@@ -163,40 +179,76 @@ def main():
                 message += f"\n作物: {alarm['plant']}"
 
             print(f"🔔 闹钟到期: {label}")
-            if send_serverchan("🌾 农场收菜提醒", message):
-                notified_ids.append(alarm["id"])
+            if alarm_id and send_serverchan("🌾 农场收菜提醒", message):
+                notified_ids.add(alarm_id)
 
         # 超过24小时过期，清理
-        if end_time < now - timedelta(hours=24):
-            expired_ids.append(alarm["id"])
+        if alarm_id and end_time < now - timedelta(hours=24):
+            expired_ids.add(alarm_id)
 
     # 4. 更新 Gist 数据（写入新版 data.json 格式，保留 history）
     updated_alarms = []
     for alarm in alarms:
+        if not isinstance(alarm, dict):
+            continue
+
         aid = alarm.get("id")
         if aid in expired_ids:
             continue
         if aid in notified_ids:
             alarm["pushNotified"] = True
+            alarm["pushNotifiedAt"] = now.isoformat()
         updated_alarms.append(alarm)
 
-    # 将已推送的闹钟写入历史记录
-    for alarm in updated_alarms:
-        if alarm.get("pushNotified") and alarm.get("id") in notified_ids:
+        if aid in notified_ids and aid not in existing_history_ids:
             history_entry = {
-                "id": alarm["id"],
+                "id": aid,
                 "label": alarm.get("label", "定时器"),
                 "plant": alarm.get("plant", ""),
                 "endTime": alarm.get("endTime", ""),
                 "totalSeconds": alarm.get("totalSeconds", 0),
                 "triggeredAt": now.isoformat(),
+                "pushNotified": True,
+                "pushNotifiedAt": now.isoformat(),
             }
             cloud_history.append(history_entry)
+            existing_history_ids.add(aid)
+
+    # 5. 给已归档到历史、但前端直发失败的闹钟做补发兜底
+    for history_entry in cloud_history:
+        if not isinstance(history_entry, dict) or history_entry.get("pushNotified"):
+            continue
+
+        hid = history_entry.get("id")
+        if hid in notified_ids or hid in history_notified_ids:
+            continue
+
+        triggered_time = parse_cloud_time(history_entry.get("triggeredAt") or history_entry.get("endTime"))
+        if triggered_time is None:
+            continue
+
+        if triggered_time < now - timedelta(hours=24):
+            continue
+
+        label = history_entry.get("label", "定时器")
+        message = f"**{label}** 成熟了！快去收菜！\n\n触发时间: {triggered_time.strftime('%H:%M')}"
+        if history_entry.get("plant"):
+            message += f"\n作物: {history_entry['plant']}"
+
+        print(f"📨 历史闹钟补发: {label}")
+        if hid and send_serverchan("🌾 农场收菜提醒", message):
+            history_entry["pushNotified"] = True
+            history_entry["pushNotifiedAt"] = now.isoformat()
+            history_notified_ids.add(hid)
 
     # 历史最多保留200条
-    cloud_history = cloud_history[-200:]
+    cloud_history = sorted(
+        [item for item in cloud_history if isinstance(item, dict)],
+        key=lambda item: item.get("triggeredAt") or item.get("endTime") or ""
+    )[-200:]
 
-    if notified_ids or expired_ids:
+    total_notified = len(notified_ids) + len(history_notified_ids)
+    if total_notified or expired_ids:
         payload = {
             "alerts": updated_alarms,
             "history": cloud_history,
@@ -214,7 +266,9 @@ def main():
 
         result = github_api(f"/gists/{gist_id}", method="PATCH", data=update_data)
         if result:
-            print(f"✅ 已更新 Gist（推送 {len(notified_ids)} 个，清理 {len(expired_ids)} 个）")
+            print(
+                f"✅ 已更新 Gist（推送 {total_notified} 个，其中活动 {len(notified_ids)} 个 / 历史补发 {len(history_notified_ids)} 个，清理 {len(expired_ids)} 个）"
+            )
         else:
             print("❌ 更新 Gist 失败")
     else:

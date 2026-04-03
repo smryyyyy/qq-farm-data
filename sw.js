@@ -1,4 +1,5 @@
-const CACHE_NAME = 'qq-farm-timer-pwa-v2';
+const CACHE_NAME = 'qq-farm-timer-pwa-v3';
+const APP_LAUNCH_URL = './index.html?source=pwa';
 const APP_SHELL = [
   './',
   './index.html',
@@ -64,4 +65,25 @@ self.addEventListener('fetch', (event) => {
       return cached || fetchPromise;
     })
   );
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification?.close();
+
+  const targetUrl = event.notification?.data?.url || APP_LAUNCH_URL;
+  event.waitUntil((async () => {
+    const allClients = await clients.matchAll({ type: 'window', includeUncontrolled: true });
+    const targetHref = new URL(targetUrl, self.location.origin).href;
+    const sameOriginClient = allClients.find((client) => client.url.startsWith(self.location.origin));
+
+    if (sameOriginClient) {
+      await sameOriginClient.focus();
+      if ('navigate' in sameOriginClient && typeof sameOriginClient.navigate === 'function') {
+        await sameOriginClient.navigate(targetHref);
+      }
+      return;
+    }
+
+    await clients.openWindow(targetUrl);
+  })());
 });

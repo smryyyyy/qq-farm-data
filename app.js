@@ -789,6 +789,91 @@ function startTimerLoop() {
 
 // ========== 闹钟触发 ==========
 let triggeredAlarmIds = new Set();
+const ALARM_NOTIFICATION_ICON = './icons/icon-192-v2.png';
+const ALARM_NOTIFICATION_BADGE = './icons/icon-32-v2.png';
+let alarmDeliveryToastCache = new Set();
+
+function showAlarmDeliveryToastOnce(key, message) {
+    if (alarmDeliveryToastCache.has(key)) return;
+    alarmDeliveryToastCache.add(key);
+    showToast(message);
+}
+
+function buildAlarmNotificationOptions(timer, message) {
+    return {
+        body: message,
+        icon: ALARM_NOTIFICATION_ICON,
+        badge: ALARM_NOTIFICATION_BADGE,
+        requireInteraction: true,
+        renotify: true,
+        tag: `farm-alarm-${timer?.id || Date.now()}`,
+        data: {
+            alarmId: timer?.id || null,
+            url: `${window.location.origin}${window.location.pathname}?source=pwa`
+        }
+    };
+}
+
+async function sendBrowserAlarmNotification(timer, message) {
+    if (!state.settings.notifyPush) {
+        return { ok: false, skipped: true, reason: 'disabled' };
+    }
+
+    if (!('Notification' in window)) {
+        return { ok: false, reason: 'unsupported', message: '当前浏览器不支持系统通知' };
+    }
+
+    if (Notification.permission !== 'granted') {
+        return {
+            ok: false,
+            reason: Notification.permission,
+            message: Notification.permission === 'denied'
+                ? '浏览器通知权限被拦截了'
+                : '浏览器通知权限还没开启'
+        };
+    }
+
+    const options = buildAlarmNotificationOptions(timer, message);
+
+    try {
+        const registration = await navigator.serviceWorker?.getRegistration?.();
+        if (registration?.showNotification) {
+            await registration.showNotification('🌾 农场收菜提醒', options);
+            return { ok: true, channel: 'service-worker' };
+        }
+    } catch (error) {
+        console.warn('Service Worker 通知发送失败，尝试回退到页面通知:', error);
+    }
+
+    try {
+        const notification = new Notification('🌾 农场收菜提醒', options);
+        notification.onclick = () => {
+            window.focus();
+            notification.close();
+            dismissAlarm();
+        };
+        return { ok: true, channel: 'window' };
+    } catch (error) {
+        console.warn('页面通知发送失败:', error);
+        return { ok: false, reason: 'constructor-failed', message: error?.message || '创建通知失败' };
+    }
+}
+
+async function sendAlarmWechatNotification(timer, message, triggeredAt) {
+    if (state.settings.notifyWeChat === false) {
+        return { ok: false, skipped: true, reason: 'disabled' };
+    }
+
+    if (typeof CloudSync?.sendAlarmPush !== 'function') {
+        return { ok: false, reason: 'unavailable', message: '微信推送模块未加载' };
+    }
+
+    const result = await CloudSync.sendAlarmPush(timer, { message, triggeredAt });
+    if (result.ok && markHistoryPushNotified(timer.id, result.notifiedAt || new Date().toISOString())) {
+        saveState();
+    }
+    return result;
+}
 
 function triggerAlarm(timer) {
     // 防重入：同一个闹钟只触发一次
@@ -817,31 +902,30 @@ function triggerAlarm(timer) {
         playAlarmSound();
     }
 
-    // 浏览器通知
-    if (state.settings.notifyPush && Notification.permission === 'granted') {
-        const notification = new Notification('🌾 农场收菜提醒', {
-            body: message,
-            icon: '🌾',
-            requireInteraction: true
-        });
-        notification.onclick = () => {
-            window.focus();
-            notification.close();
-            dismissAlarm();
-        };
-    }
+    sendBrowserAlarmNotification(timer, message).then(result => {
+        if (result.ok || result.skipped) return;
+        console.warn('浏览器通知未送达:', result.message || result.reason || result);
+        showAlarmDeliveryToastOnce(
+            `browser-${result.reason || 'failed'}`,
+            `⚠️ 页面内闹钟已响，但系统通知未送达：${result.message || '请检查通知权限'}`
+        );
+    }).catch(error => {
+        console.warn('浏览器通知补发失败:', error);
+        showAlarmDeliveryToastOnce('browser-error', '⚠️ 页面内闹钟已响，但系统通知发送失败');
+    });
 
     // 微信推送：页面在线时直接补发，后台定时任务继续做兜底
-    if (state.settings.notifyWeChat !== false && typeof CloudSync?.sendAlarmPush === 'function') {
-        CloudSync.sendAlarmPush(timer, { message, triggeredAt }).then(sent => {
-            if (!sent) return;
-            if (markHistoryPushNotified(timer.id, new Date().toISOString())) {
-                saveState();
-            }
-        }).catch(error => {
-            console.warn('微信推送补发失败:', error);
-        });
-    }
+    sendAlarmWechatNotification(timer, message, triggeredAt).then(result => {
+        if (result.ok || result.skipped) return;
+        console.warn('微信推送补发失败:', result.message || result);
+        showAlarmDeliveryToastOnce(
+            `wechat-${result.reason || 'failed'}`,
+            `⚠️ 页面内闹钟已响，但微信消息未立即送达：${result.message || '后台会继续尝试补发'}`
+        );
+    }).catch(error => {
+        console.warn('微信推送补发失败:', error);
+        showAlarmDeliveryToastOnce('wechat-error', '⚠️ 页面内闹钟已响，但微信消息补发失败，后台会继续尝试');
+    });
 
     // 震动
     if (state.settings.notifyVibrate && navigator.vibrate) {
@@ -1682,6 +1766,10 @@ function updateNotifySetting(key) {
 
     if (key === 'notifyPush' && state.settings[key]) {
         requestNotificationPermission({ immediate: true, source: 'toggle' });
+    }
+
+    if (key === 'notifyWeChat' && state.settings[key] && !CloudSync?.sendKey) {
+        showToast('⚠️ 已打开微信推送，但当前设备还没保存 SendKey；本机无法立即直发微信消息');
     }
 }
 
