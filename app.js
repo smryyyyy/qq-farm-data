@@ -2698,3 +2698,26 @@ function closeSyncHelp() {
         modal.style.display = 'none';
     }
 }
+
+// 复制文本到剪贴板
+async function copyToClipboard(text) {
+    try {
+        await navigator.clipboard.writeText(text);
+        showToast('✅ 已复制到剪贴板');
+    } catch (error) {
+        // 降级方案
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        try {
+            document.execCommand('copy');
+            showToast('✅ 已复制到剪贴板');
+        } catch (err) {
+            showToast('❌ 复制失败，请手动复制');
+        }
+        document.body.removeChild(textarea);
+    }
+}

@@ -440,7 +440,12 @@
                             <div class="step-number">1</div>
                             <div class="step-content">
                                 <h4>创建 GitHub Token</h4>
-                                <p>点击"GitHub Token"输入框下方的链接，进入 GitHub Token 创建页面。</p>
+                                <p>GitHub Token 是用来授权应用访问你的账号存储数据的密钥。</p>
+                                <p><strong>📍 访问地址</strong>：点击下方蓝色链接可直接进入创建页面</p>
+                                <div class="url-box">
+                                    <code>https://github.com/settings/tokens/new?scopes=gist&description=QQFarmTimer</code>
+                                    <button class="copy-url-btn" onclick="copyToClipboard('https://github.com/settings/tokens/new?scopes=gist&description=QQFarmTimer')">复制</button>
+                                </div>
                                 <div class="step-image">
                                     <div class="mock-browser">
                                         <div class="browser-header">
@@ -452,35 +457,41 @@
                                         <div class="browser-content">
                                             <div class="token-form">
                                                 <div class="form-row">
-                                                    <label>Token description</label>
+                                                    <label>Note (描述)</label>
                                                     <div class="form-input">QQFarmTimer</div>
                                                 </div>
                                                 <div class="form-row">
-                                                    <label>Expiration</label>
+                                                    <label>Expiration (有效期)</label>
                                                     <div class="form-select">30 days ▼</div>
                                                 </div>
                                                 <div class="form-row highlight">
                                                     <div class="checkbox-wrapper">
                                                         <div class="checkbox checked">✓</div>
-                                                        <span>gist (gist)</span>
+                                                        <span>gist (存储数据)</span>
                                                     </div>
                                                 </div>
                                                 <div class="form-action">
-                                                    <div class="btn primary">Generate token</div>
+                                                    <div class="btn primary">Generate token (生成Token)</div>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <p class="step-note">💡 <strong>重要</strong>：勾选 <code>gist</code> 权限即可，其他权限不需要。</p>
+                                    <p class="step-note">💡 <strong>关键操作</strong>：只需勾选 <code>gist</code> 这个权限，其他都不要勾选。有效期选择 30 天即可。</p>
                                 </div>
-                                <p>复制生成的 Token（以 <code>ghp_</code> 开头），粘贴到应用的输入框中。</p>
+                                <p><strong>📋 复制 Token</strong>：点击"Generate token"后，页面会显示一个长串字符（以 <code>ghp_</code> 开头），点击旁边的复制按钮，然后粘贴到应用的"GitHub Token"输入框中。</p>
+                                <p class="step-warning">⚠️ <strong>注意</strong>：Token 只会显示一次，务必马上复制保存！</p>
                             </div>
                         </div>
                         <div class="step-item">
                             <div class="step-number">2</div>
                             <div class="step-content">
                                 <h4>获取 Server酱 SendKey</h4>
-                                <p>点击"Server酱 SendKey"输入框下方的链接，进入 Server酱官网。</p>
+                                <p>Server酱 是用来将推送通知发送到微信的服务。</p>
+                                <p><strong>📍 访问地址</strong>：点击下方蓝色链接可直接进入</p>
+                                <div class="url-box">
+                                    <code>https://sct.ftqq.com/</code>
+                                    <button class="copy-url-btn" onclick="copyToClipboard('https://sct.ftqq.com/')">复制</button>
+                                </div>
                                 <div class="step-image">
                                     <div class="mock-browser">
                                         <div class="browser-header">
@@ -496,20 +507,22 @@
                                                         <span class="github-icon">GH</span>
                                                         <span>GitHub 登录</span>
                                                     </div>
+                                                    <p class="login-hint">推荐使用 GitHub 账号登录，方便快捷</p>
                                                 </div>
                                                 <div class="sendkey-section">
-                                                    <div class="sendkey-label">SendKey</div>
+                                                    <div class="sendkey-label">SendKey (发送密钥)</div>
                                                     <div class="sendkey-value">
                                                         <code>SCT1234567890abcdef</code>
                                                         <span class="copy-btn">📋</span>
                                                     </div>
+                                                    <p class="sendkey-hint">登录后即可看到 SendKey，点击复制按钮复制</p>
                                                 </div>
                                             </div>
                                         </div>
                                     </div>
-                                    <p class="step-note">💡 <strong>提示</strong>：使用 GitHub 账号登录后，即可看到 SendKey，直接复制即可。</p>
+                                    <p class="step-note">💡 <strong>操作提示</strong>：登录后页面会显示 SendKey（以 <code>SCT</code> 开头），点击复制按钮，然后粘贴到应用的"Server酱 SendKey"输入框中。</p>
                                 </div>
-                                <p>将 SendKey（以 <code>SCT</code> 开头）粘贴到应用的输入框中。</p>
+                                <p class="step-warning">⚠️ <strong>重要</strong>：SendKey 相当于你的微信推送密码，不要分享给他人！</p>
                             </div>
                         </div>
                         <div class="step-item">

@@ -2971,6 +2971,59 @@ body {
     margin-bottom: 4px;
 }
 
+/* 网址复制框 */
+.url-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--bg-primary);
+    border: 2px solid var(--accent-green);
+    border-radius: 8px;
+    padding: 12px;
+    margin: 10px 0;
+}
+
+.url-box code {
+    flex: 1;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--accent-dark);
+    word-break: break-all;
+    line-height: 1.4;
+}
+
+.copy-url-btn {
+    flex-shrink: 0;
+    background: var(--accent-green);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.copy-url-btn:hover {
+    background: var(--accent-light);
+}
+
+/* 警告提示 */
+.step-warning {
+    padding: 10px 12px;
+    background: rgba(255, 152, 0, 0.1);
+    border-radius: 6px;
+    border-left: 3px solid #ff9800;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+}
+
+.step-warning strong {
+    color: #ff9800;
+}
+
 .form-input {
     background: #3d3d3d;
     border: 1px solid #4d4d4d;
@@ -3045,6 +3098,12 @@ body {
     margin-bottom: 20px;
 }
 
+.login-hint {
+    font-size: 12px;
+    color: #888;
+    margin-top: 8px;
+}
+
 .github-login-btn {
     background: #24292e;
     color: white;
@@ -3101,6 +3160,12 @@ body {
 .copy-btn {
     font-size: 14px;
     cursor: pointer;
+}
+
+.sendkey-hint {
+    font-size: 12px;
+    color: #888;
+    margin-top: 8px;
 }
 
 /* 配置流程演示 */
