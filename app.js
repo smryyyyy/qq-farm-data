@@ -815,15 +815,28 @@ function buildAlarmNotificationOptions(timer, message) {
 }
 
 async function sendBrowserAlarmNotification(timer, message) {
+    console.log('[通知] 开始发送浏览器通知', {
+        notifyPush: state.settings.notifyPush,
+        permission: Notification?.permission,
+        hasNotification: 'Notification' in window,
+        timerId: timer?.id,
+        message
+    });
+
     if (!state.settings.notifyPush) {
+        console.log('[通知] 用户已关闭浏览器通知开关');
         return { ok: false, skipped: true, reason: 'disabled' };
     }
 
     if (!('Notification' in window)) {
+        console.error('[通知] 当前浏览器不支持系统通知');
         return { ok: false, reason: 'unsupported', message: '当前浏览器不支持系统通知' };
     }
 
+    console.log('[通知] 当前通知权限:', Notification.permission);
+
     if (Notification.permission !== 'granted') {
+        console.warn('[通知] 通知权限未授权:', Notification.permission);
         return {
             ok: false,
             reason: Notification.permission,
@@ -834,27 +847,43 @@ async function sendBrowserAlarmNotification(timer, message) {
     }
 
     const options = buildAlarmNotificationOptions(timer, message);
+    console.log('[通知] 通知选项配置:', options);
 
     try {
+        console.log('[通知] 尝试获取 Service Worker 注册...');
         const registration = await navigator.serviceWorker?.getRegistration?.();
+        console.log('[通知] Service Worker 注册状态:', {
+            hasRegistration: !!registration,
+            hasShowNotification: !!registration?.showNotification,
+            active: registration?.active?.state,
+            state: registration?.state
+        });
+
         if (registration?.showNotification) {
+            console.log('[通知] 使用 Service Worker 发送通知');
             await registration.showNotification('🌾 农场收菜提醒', options);
+            console.log('[通知] Service Worker 通知发送成功');
             return { ok: true, channel: 'service-worker' };
+        } else {
+            console.log('[通知] Service Worker 不可用，准备使用页面通知');
         }
     } catch (error) {
-        console.warn('Service Worker 通知发送失败，尝试回退到页面通知:', error);
+        console.warn('[通知] Service Worker 通知发送失败，尝试回退到页面通知:', error);
     }
 
     try {
+        console.log('[通知] 使用页面 Notification API 发送通知');
         const notification = new Notification('🌾 农场收菜提醒', options);
         notification.onclick = () => {
+            console.log('[通知] 用户点击了通知');
             window.focus();
             notification.close();
             dismissAlarm();
         };
+        console.log('[通知] 页面通知创建成功');
         return { ok: true, channel: 'window' };
     } catch (error) {
-        console.warn('页面通知发送失败:', error);
+        console.error('[通知] 页面通知发送失败:', error);
         return { ok: false, reason: 'constructor-failed', message: error?.message || '创建通知失败' };
     }
 }
@@ -1687,7 +1716,12 @@ function clearHistory() {
 // ========== 设置 ==========
 function toggleSettings() {
     const modal = document.getElementById('settings-modal');
+    const isOpening = modal.style.display === 'none';
     modal.style.display = modal.style.display === 'none' ? 'flex' : 'none';
+
+    if (isOpening) {
+        updateNotificationStatus();
+    }
 }
 
 function openSettingsPanel(options = {}) {
@@ -1771,6 +1805,50 @@ function updateNotifySetting(key) {
     if (key === 'notifyWeChat' && state.settings[key] && !CloudSync?.sendKey) {
         showToast('⚠️ 已打开微信推送，但当前设备还没保存 SendKey；本机无法立即直发微信消息');
     }
+
+    updateNotificationStatus();
+}
+
+function updateNotificationStatus() {
+    const statusEl = document.getElementById('notification-status');
+    if (!statusEl) return;
+
+    const permission = getNotificationPermissionState();
+    const swRegistration = navigator.serviceWorker?.getRegistration ? navigator.serviceWorker.getRegistration() : null;
+
+    let statusText = '';
+    let statusClass = '';
+
+    if (!('Notification' in window)) {
+        statusText = '❌ 浏览器不支持';
+        statusClass = 'status-error';
+    } else if (permission === 'denied') {
+        statusText = '❌ 通知已被拦截';
+        statusClass = 'status-error';
+    } else if (permission === 'granted') {
+        statusText = '✅ 通知已授权';
+        statusClass = 'status-success';
+    } else {
+        statusText = '⏳ 未授权';
+        statusClass = 'status-warning';
+    }
+
+    if (permission === 'granted') {
+        swRegistration.then(reg => {
+            if (reg && reg.active) {
+                statusText += ' | Service Worker: ✅';
+            } else if (reg) {
+                statusText += ' | Service Worker: ⏳';
+            } else {
+                statusText += ' | Service Worker: ❌';
+            }
+        }).catch(() => {
+            statusText += ' | Service Worker: ❌';
+        });
+    }
+
+    statusEl.textContent = statusText;
+    statusEl.className = 'sync-status ' + statusClass;
 }
 
 // ========== 通知权限 ==========
@@ -1833,6 +1911,80 @@ async function requestNotificationPermission(options = {}) {
         ask().catch(() => {});
     }, 3000);
     return 'default';
+}
+
+async function testBrowserNotification() {
+    console.log('[测试] 开始测试浏览器通知');
+
+    if (!('Notification' in window)) {
+        showToast('❌ 当前浏览器不支持系统通知');
+        return;
+    }
+
+    const permission = Notification.permission;
+    console.log('[测试] 当前通知权限:', permission);
+
+    if (permission === 'denied') {
+        showToast('❌ 浏览器通知已被拦截，请在浏览器设置中允许通知');
+        return;
+    }
+
+    if (permission === 'default') {
+        showToast('正在请求通知权限...');
+        const result = await requestNotificationPermission({ immediate: true, source: 'test' });
+        if (result !== 'granted') {
+            showToast('❌ 需要允许通知才能测试');
+            return;
+        }
+    }
+
+    try {
+        const options = {
+            body: '这是一条测试通知，如果看到这条消息，说明浏览器通知功能正常！',
+            icon: ALARM_NOTIFICATION_ICON,
+            badge: ALARM_NOTIFICATION_BADGE,
+            requireInteraction: false,
+            tag: 'test-notification-' + Date.now()
+        };
+
+        console.log('[测试] 通知选项:', options);
+
+        let sentChannel = '';
+
+        try {
+            const registration = await navigator.serviceWorker?.getRegistration?.();
+            console.log('[测试] Service Worker 状态:', {
+                hasRegistration: !!registration,
+                hasShowNotification: !!registration?.showNotification,
+                active: registration?.active?.state
+            });
+
+            if (registration?.showNotification) {
+                await registration.showNotification('🔔 通知测试', options);
+                sentChannel = 'Service Worker';
+                console.log('[测试] Service Worker 通知发送成功');
+            } else {
+                console.log('[测试] Service Worker 不可用，使用页面通知');
+            }
+        } catch (error) {
+            console.warn('[测试] Service Worker 通知失败:', error);
+        }
+
+        if (!sentChannel) {
+            const notification = new Notification('🔔 通知测试', options);
+            notification.onclick = () => {
+                window.focus();
+                notification.close();
+            };
+            sentChannel = '页面通知';
+            console.log('[测试] 页面通知创建成功');
+        }
+
+        showToast(`✅ 测试通知已发送（${sentChannel}），检查系统通知栏`);
+    } catch (error) {
+        console.error('[测试] 通知发送失败:', error);
+        showToast('❌ 通知发送失败: ' + error.message);
+    }
 }
 
 function closeNotificationGuide() {
