@@ -809,6 +809,25 @@ body {
     transform: scale(0.96);
 }
 
+.plant-card.highlight-plant {
+    animation: highlightPulse 2s ease-in-out;
+    border-color: #FFD700;
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+@keyframes highlightPulse {
+    0%, 100% {
+        border-color: #FFD700;
+        box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        transform: scale(1);
+    }
+    50% {
+        border-color: #FFA500;
+        box-shadow: 0 0 30px rgba(255, 165, 0, 0.7);
+        transform: scale(1.05);
+    }
+}
+
 .plant-emoji {
     font-size: 32px;
     margin-bottom: 4px;

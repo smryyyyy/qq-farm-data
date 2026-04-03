@@ -252,6 +252,11 @@ function switchTab(tabName) {
         content.classList.toggle('active', content.id === `tab-${tabName}`);
     });
     requestAnimationFrame(updateStickyOffsets);
+    
+    // 切换到种植页面时，自动滚动到最新解锁的植物
+    if (tabName === 'plant') {
+        setTimeout(scrollToLatestUnlockedPlant, 100);
+    }
 }
 
 // ========== 滚轮时间选择器 ==========
@@ -1222,6 +1227,57 @@ function renderPlantGrid(filter = '') {
 
 function filterPlants(keyword) {
     renderPlantGrid(keyword);
+}
+
+// ========== 滚动到最新解锁的植物 ==========
+function scrollToLatestUnlockedPlant() {
+    const farmLevel = analysisState.farmLevel || 1;
+    const landType = state.selectedLand;
+    
+    // 找到所有满足条件的植物
+    const plants = Object.values(PLANTS_DATABASE).filter(p => {
+        return p.level <= farmLevel && canPlantOnLand(p, landType);
+    });
+    
+    if (plants.length === 0) return;
+    
+    // 找到level最大的植物（最新解锁的）
+    const maxLevel = Math.max(...plants.map(p => p.level));
+    const latestPlants = plants.filter(p => p.level === maxLevel);
+    
+    // 如果有多个同等级的，取第一个
+    const targetPlant = latestPlants[0];
+    if (!targetPlant) return;
+    
+    // 找到对应的DOM元素
+    const plantCards = document.querySelectorAll('.plant-card');
+    for (const card of plantCards) {
+        const nameEl = card.querySelector('.plant-name');
+        if (nameEl && nameEl.textContent === targetPlant.name) {
+            // 计算目标位置（考虑吸顶偏移）
+            const headerHeight = document.querySelector('.app-header')?.offsetHeight || 0;
+            const tabHeight = document.querySelector('.tab-nav')?.offsetHeight || 0;
+            const landToolsHeight = document.querySelector('.plant-sticky-tools')?.offsetHeight || 0;
+            const offset = headerHeight + tabHeight + landToolsHeight + 20;
+            
+            const rect = card.getBoundingClientRect();
+            const scrollTop = window.pageYOffset + rect.top - offset;
+            
+            // 平滑滚动
+            window.scrollTo({
+                top: Math.max(0, scrollTop),
+                behavior: 'smooth'
+            });
+            
+            // 添加高亮效果
+            card.classList.add('highlight-plant');
+            setTimeout(() => {
+                card.classList.remove('highlight-plant');
+            }, 2000);
+            
+            break;
+        }
+    }
 }
 
 // ========== 自定义植物 ==========
