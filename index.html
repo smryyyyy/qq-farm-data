@@ -303,7 +303,10 @@
                 <!-- 云同步设置 -->
                 <div class="setting-divider"></div>
                 <div class="setting-item">
-                    <label>☁️ 云同步 & 推送</label>
+                    <div class="setting-row">
+                        <label>☁️ 云同步 & 推送</label>
+                        <button class="help-btn" onclick="showSyncHelp()" title="查看配置指引">❓</button>
+                    </div>
                     <div id="sync-status" class="sync-status">☁️ 未连接</div>
                     <p class="sync-desc">连接后可在多设备间同步闹钟，并通过微信接收推送通知（即使关闭浏览器也能收到）</p>
                 </div>
@@ -421,6 +424,162 @@
                 </div>
             </div>
             <button class="primary-btn" onclick="closeAnalysisHelp()">知道了</button>
+        </div>
+    </div>
+
+    <!-- 云同步帮助弹窗 -->
+    <div class="modal-overlay" id="sync-help-modal" style="display:none;">
+        <div class="modal help-modal sync-help-modal">
+            <h2>☁️ 云同步 & 推送配置指引</h2>
+            <div class="help-content">
+                <div class="help-section">
+                    <h3>📋 配置步骤</h3>
+                    <p>完成以下 3 步即可开启云同步和微信推送：</p>
+                    <div class="step-list">
+                        <div class="step-item">
+                            <div class="step-number">1</div>
+                            <div class="step-content">
+                                <h4>创建 GitHub Token</h4>
+                                <p>点击"GitHub Token"输入框下方的链接，进入 GitHub Token 创建页面。</p>
+                                <div class="step-image">
+                                    <div class="mock-browser">
+                                        <div class="browser-header">
+                                            <span class="browser-dot red"></span>
+                                            <span class="browser-dot yellow"></span>
+                                            <span class="browser-dot green"></span>
+                                            <span class="browser-url">github.com/settings/tokens/new</span>
+                                        </div>
+                                        <div class="browser-content">
+                                            <div class="token-form">
+                                                <div class="form-row">
+                                                    <label>Token description</label>
+                                                    <div class="form-input">QQFarmTimer</div>
+                                                </div>
+                                                <div class="form-row">
+                                                    <label>Expiration</label>
+                                                    <div class="form-select">30 days ▼</div>
+                                                </div>
+                                                <div class="form-row highlight">
+                                                    <div class="checkbox-wrapper">
+                                                        <div class="checkbox checked">✓</div>
+                                                        <span>gist (gist)</span>
+                                                    </div>
+                                                </div>
+                                                <div class="form-action">
+                                                    <div class="btn primary">Generate token</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="step-note">💡 <strong>重要</strong>：勾选 <code>gist</code> 权限即可，其他权限不需要。</p>
+                                </div>
+                                <p>复制生成的 Token（以 <code>ghp_</code> 开头），粘贴到应用的输入框中。</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">2</div>
+                            <div class="step-content">
+                                <h4>获取 Server酱 SendKey</h4>
+                                <p>点击"Server酱 SendKey"输入框下方的链接，进入 Server酱官网。</p>
+                                <div class="step-image">
+                                    <div class="mock-browser">
+                                        <div class="browser-header">
+                                            <span class="browser-dot red"></span>
+                                            <span class="browser-dot yellow"></span>
+                                            <span class="browser-dot green"></span>
+                                            <span class="browser-url">sct.ftqq.com</span>
+                                        </div>
+                                        <div class="browser-content">
+                                            <div class="serverchan-home">
+                                                <div class="login-section">
+                                                    <div class="github-login-btn">
+                                                        <span class="github-icon">GH</span>
+                                                        <span>GitHub 登录</span>
+                                                    </div>
+                                                </div>
+                                                <div class="sendkey-section">
+                                                    <div class="sendkey-label">SendKey</div>
+                                                    <div class="sendkey-value">
+                                                        <code>SCT1234567890abcdef</code>
+                                                        <span class="copy-btn">📋</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <p class="step-note">💡 <strong>提示</strong>：使用 GitHub 账号登录后，即可看到 SendKey，直接复制即可。</p>
+                                </div>
+                                <p>将 SendKey（以 <code>SCT</code> 开头）粘贴到应用的输入框中。</p>
+                            </div>
+                        </div>
+                        <div class="step-item">
+                            <div class="step-number">3</div>
+                            <div class="step-content">
+                                <h4>测试并保存配置</h4>
+                                <div class="step-image">
+                                    <div class="config-demo">
+                                        <div class="config-step">
+                                            <div class="config-number">①</div>
+                                            <div class="config-text">点击"💾 保存配置"</div>
+                                        </div>
+                                        <div class="config-arrow">↓</div>
+                                        <div class="config-step">
+                                            <div class="config-number">②</div>
+                                            <div class="config-text">点击"📡 测试推送"</div>
+                                        </div>
+                                        <div class="config-arrow">↓</div>
+                                        <div class="config-step success">
+                                            <div class="config-number">✓</div>
+                                            <div class="config-text">收到微信消息，配置成功！</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <p>确保能在微信中收到测试推送后，配置就完成了！</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="help-divider"></div>
+                <div class="help-section">
+                    <h3>🔧 高级功能</h3>
+                    <div class="feature-grid">
+                        <div class="feature-item">
+                            <div class="feature-icon">🔄</div>
+                            <h4>立即同步</h4>
+                            <p>手动触发云同步，将本地的闹钟、自定义植物等数据上传到 GitHub，或从 GitHub 拉取最新数据。</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">🧳</div>
+                            <h4>配置迁移</h4>
+                            <p>将 Token 和 SendKey 导出为 JSON 文件，在新设备或安装版中导入，无需重新配置。</p>
+                        </div>
+                        <div class="feature-item">
+                            <div class="feature-icon">⏰</div>
+                            <h4>定时推送</h4>
+                            <p>即使关闭浏览器，GitHub Actions 也会每 5 分钟检查一次闹钟，到点自动推送微信。</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="help-divider"></div>
+                <div class="help-section">
+                    <h3>❓ 常见问题</h3>
+                    <div class="faq-list">
+                        <div class="faq-item">
+                            <div class="faq-question">Q: Token 过期了怎么办？</div>
+                            <div class="faq-answer">A: Token 有效期为 30 天，过期后需要重新创建。可以在 GitHub 的 Settings → Developer settings → Personal access tokens 中查看和管理。</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">Q: 为什么收不到微信推送？</div>
+                            <div class="faq-answer">A: 请检查：1）SendKey 是否正确；2）是否点击了"测试推送"并成功；3）GitHub Actions 是否正常运行（查看仓库的 Actions 标签页）。</div>
+                        </div>
+                        <div class="faq-item">
+                            <div class="faq-question">Q: 多设备数据会冲突吗？</div>
+                            <div class="faq-answer">A: 不会。每次同步时会合并数据，以最后修改时间为准。建议在不同设备上尽量避免同时编辑相同内容。</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="primary-btn" onclick="closeSyncHelp()">我知道了</button>
         </div>
     </div>
 

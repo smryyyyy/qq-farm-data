@@ -2847,3 +2847,431 @@ body {
         font-size: 13px;
     }
 }
+
+/* === 云同步帮助样式 === */
+.sync-help-modal {
+    max-width: 580px;
+    max-height: 85vh;
+}
+
+.sync-help-modal .help-content {
+    max-height: 65vh;
+}
+
+/* 步骤列表 */
+.step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.step-item {
+    display: flex;
+    gap: 12px;
+    padding: 16px;
+    background: var(--bg-primary);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+}
+
+.step-number {
+    flex-shrink: 0;
+    width: 32px;
+    height: 32px;
+    background: linear-gradient(135deg, var(--accent-green), var(--accent-light));
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 16px;
+}
+
+.step-content h4 {
+    font-size: 15px;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.step-content p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 8px;
+}
+
+/* 模拟浏览器界面 */
+.step-image {
+    margin: 12px 0;
+}
+
+.mock-browser {
+    background: #1e1e1e;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.browser-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    background: #2d2d2d;
+    border-bottom: 1px solid #3d3d3d;
+}
+
+.browser-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.browser-dot.red {
+    background: #ff5f57;
+}
+
+.browser-dot.yellow {
+    background: #ffbd2e;
+}
+
+.browser-dot.green {
+    background: #28c840;
+}
+
+.browser-url {
+    flex: 1;
+    text-align: center;
+    font-size: 12px;
+    color: #888;
+    font-family: 'Courier New', monospace;
+}
+
+.browser-content {
+    padding: 16px;
+    min-height: 120px;
+}
+
+/* Token 创建表单模拟 */
+.token-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.form-row {
+    margin-bottom: 12px;
+}
+
+.form-row label {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.form-input {
+    background: #3d3d3d;
+    border: 1px solid #4d4d4d;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #f0f0f0;
+}
+
+.form-select {
+    background: #3d3d3d;
+    border: 1px solid #4d4d4d;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 13px;
+    color: #f0f0f0;
+    display: inline-block;
+}
+
+.form-row.highlight {
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 6px;
+    padding: 8px;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.checkbox-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.checkbox {
+    width: 18px;
+    height: 18px;
+    background: var(--accent-green);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.form-action {
+    margin-top: 16px;
+}
+
+.btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.btn.primary {
+    background: #238636;
+    color: white;
+}
+
+/* Server酱 首页模拟 */
+.serverchan-home {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.login-section {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.github-login-btn {
+    background: #24292e;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+}
+
+.github-icon {
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #24292e;
+}
+
+.sendkey-section {
+    background: #f6f8fa;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.sendkey-label {
+    font-size: 12px;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.sendkey-value {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sendkey-value code {
+    flex: 1;
+    background: white;
+    padding: 10px 12px;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: #24292e;
+    word-break: break-all;
+}
+
+.copy-btn {
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* 配置流程演示 */
+.config-demo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    background: var(--bg-primary);
+    border-radius: 12px;
+}
+
+.config-step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    width: 100%;
+    max-width: 300px;
+}
+
+.config-step.success {
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+    border-color: transparent;
+    color: white;
+}
+
+.config-number {
+    width: 28px;
+    height: 28px;
+    background: var(--accent-green);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+}
+
+.config-step.success .config-number {
+    background: rgba(255, 255, 255, 0.25);
+}
+
+.config-text {
+    flex: 1;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.config-arrow {
+    color: var(--accent-green);
+    font-size: 16px;
+}
+
+/* 步骤提示 */
+.step-note {
+    margin-top: 8px;
+    padding: 8px 12px;
+    background: rgba(76, 175, 80, 0.1);
+    border-radius: 6px;
+    border-left: 3px solid var(--accent-green);
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.step-note code {
+    background: var(--bg-primary);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 12px;
+    color: var(--accent-dark);
+}
+
+/* 功能网格 */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.feature-item {
+    padding: 12px;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    text-align: center;
+}
+
+.feature-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.feature-item h4 {
+    font-size: 13px;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.feature-item p {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* FAQ 列表 */
+.faq-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.faq-item {
+    padding: 12px;
+    background: var(--bg-primary);
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.faq-question {
+    font-size: 14px;
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.faq-answer {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+}
+
+/* 移动端适配 */
+@media (max-width: 480px) {
+    .sync-help-modal {
+        max-width: 95vw;
+        max-height: 90vh;
+    }
+
+    .sync-help-modal .help-content {
+        max-height: 75vh;
+    }
+
+    .step-item {
+        flex-direction: column;
+    }
+
+    .step-number {
+        width: 28px;
+        height: 28px;
+        font-size: 14px;
+    }
+
+    .feature-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .browser-content {
+        min-height: 100px;
+        padding: 12px;
+    }
+
+    .token-form,
+    .serverchan-home {
+        max-width: 100%;
+    }
+}

@@ -2645,3 +2645,19 @@ function closeAnalysisHelp() {
         modal.style.display = 'none';
     }
 }
+
+// 打开云同步帮助
+function showSyncHelp() {
+    const modal = document.getElementById('sync-help-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+}
+
+// 关闭云同步帮助
+function closeSyncHelp() {
+    const modal = document.getElementById('sync-help-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
