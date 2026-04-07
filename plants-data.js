@@ -59,7 +59,7 @@ const PLANTS_DATABASE = {
     "小雏菊": { name: "小雏菊", emoji: "🌼", level: 21, seedPrice: 352, sellPrice: 3400, exp: 304, firstTime: 4, reTime: 0, seasons: 1, land: "any", category: "花卉" },
 
     // ===== 红土作物 =====
-    "昙花": { name: "昙花", emoji: "🌙", level: 21, seedPrice: 3360, sellPrice: 4032, exp: 840, firstTime: 8, reTime: 8, seasons: 2, land: "red", category: "红土作物" },
+    "昙花": { name: "昙花", emoji: "🌙", level: 21, seedPrice: 3360, sellPrice: 4032, exp: 840, firstTime: 8, reTime: 4, seasons: 2, land: "red", category: "红土作物" },
 
     // ===== 蔬菜 =====
     "豌豆": { name: "豌豆", emoji: "🫛", level: 22, seedPrice: 704, sellPrice: 7000, exp: 608, firstTime: 8, reTime: 0, seasons: 1, land: "any", category: "蔬菜" },
@@ -161,101 +161,101 @@ const PLANTS_DATABASE = {
     "柚子": { name: "柚子", emoji: "🍊", level: 60, seedPrice: 5760, sellPrice: 57600, exp: 3240, firstTime: 24, reTime: 0, seasons: 1, land: "any", category: "作物" },
 
     // ===== 红土作物 =====
-    "荷包牡丹": { name: "荷包牡丹", emoji: "💗", level: 61, seedPrice: 13680, sellPrice: 8208, exp: 840, firstTime: 8, reTime: 8, seasons: 2, land: "red", category: "红土作物" },
+    "荷包牡丹": { name: "荷包牡丹", emoji: "💗", level: 61, seedPrice: 13680, sellPrice: 8208, exp: 840, firstTime: 8, reTime: 4, seasons: 2, land: "red", category: "红土作物" },
 
     // ===== 花卉 =====
-    "蘑菇": { name: "蘑菇", emoji: "🍄", level: 61, seedPrice: 1584, sellPrice: 7800, exp: 429, firstTime: 4, reTime: 4, seasons: 2, land: "any", category: "花卉" },
+    "蘑菇": { name: "蘑菇", emoji: "🍄", level: 61, seedPrice: 1584, sellPrice: 7800, exp: 429, firstTime: 4, reTime: 2, seasons: 2, land: "any", category: "花卉" },
 
     // ===== 红土作物 =====
-    "银杏树苗": { name: "银杏树苗", emoji: "🍂", level: 61, seedPrice: 5742, sellPrice: 3432, exp: 720, firstTime: 8, reTime: 8, seasons: 2, land: "red", category: "红土作物" },
-    "风信子": { name: "风信子", emoji: "💜", level: 61, seedPrice: 1914, sellPrice: 1128, exp: 720, firstTime: 8, reTime: 8, seasons: 2, land: "red", category: "红土作物" },
+    "银杏树苗": { name: "银杏树苗", emoji: "🍂", level: 61, seedPrice: 5742, sellPrice: 3432, exp: 720, firstTime: 8, reTime: 4, seasons: 2, land: "red", category: "红土作物" },
+    "风信子": { name: "风信子", emoji: "💜", level: 61, seedPrice: 1914, sellPrice: 1128, exp: 720, firstTime: 8, reTime: 4, seasons: 2, land: "red", category: "红土作物" },
 
     // ===== 水果 =====
-    "菠萝": { name: "菠萝", emoji: "🍍", level: 62, seedPrice: 3168, sellPrice: 15800, exp: 858, firstTime: 8, reTime: 8, seasons: 2, land: "any", category: "水果" },
+    "菠萝": { name: "菠萝", emoji: "🍍", level: 62, seedPrice: 3168, sellPrice: 15800, exp: 858, firstTime: 8, reTime: 4, seasons: 2, land: "any", category: "水果" },
 
     // ===== 蔬菜 =====
-    "箬竹": { name: "箬竹", emoji: "🎋", level: 63, seedPrice: 4752, sellPrice: 23600, exp: 1287, firstTime: 12, reTime: 12, seasons: 2, land: "any", category: "蔬菜" },
+    "箬竹": { name: "箬竹", emoji: "🎋", level: 63, seedPrice: 4752, sellPrice: 23600, exp: 1287, firstTime: 12, reTime: 6, seasons: 2, land: "any", category: "蔬菜" },
 
     // ===== 水果 =====
-    "无花果": { name: "无花果", emoji: "🫐", level: 64, seedPrice: 9504, sellPrice: 47400, exp: 2574, firstTime: 24, reTime: 24, seasons: 2, land: "any", category: "水果" },
-    "椰子": { name: "椰子", emoji: "🥥", level: 65, seedPrice: 1746, sellPrice: 8600, exp: 456, firstTime: 4, reTime: 4, seasons: 2, land: "any", category: "水果" },
-    "花生": { name: "花生", emoji: "🥜", level: 66, seedPrice: 3492, sellPrice: 17400, exp: 912, firstTime: 8, reTime: 8, seasons: 2, land: "any", category: "水果" },
+    "无花果": { name: "无花果", emoji: "🫐", level: 64, seedPrice: 9504, sellPrice: 47400, exp: 2574, firstTime: 24, reTime: 12, seasons: 2, land: "any", category: "水果" },
+    "椰子": { name: "椰子", emoji: "🥥", level: 65, seedPrice: 1746, sellPrice: 8600, exp: 456, firstTime: 4, reTime: 2, seasons: 2, land: "any", category: "水果" },
+    "花生": { name: "花生", emoji: "🥜", level: 66, seedPrice: 3492, sellPrice: 17400, exp: 912, firstTime: 8, reTime: 4, seasons: 2, land: "any", category: "水果" },
 
     // ===== 蔬菜 =====
-    "金针菇": { name: "金针菇", emoji: "🍄", level: 67, seedPrice: 5238, sellPrice: 26000, exp: 1368, firstTime: 12, reTime: 12, seasons: 2, land: "any", category: "蔬菜" },
+    "金针菇": { name: "金针菇", emoji: "🍄", level: 67, seedPrice: 5238, sellPrice: 26000, exp: 1368, firstTime: 12, reTime: 6, seasons: 2, land: "any", category: "蔬菜" },
 
     // ===== 花卉 =====
-    "葫芦": { name: "葫芦", emoji: "🫙", level: 68, seedPrice: 10476, sellPrice: 52200, exp: 2736, firstTime: 24, reTime: 24, seasons: 2, land: "any", category: "花卉" },
+    "葫芦": { name: "葫芦", emoji: "🫙", level: 68, seedPrice: 10476, sellPrice: 52200, exp: 2736, firstTime: 24, reTime: 12, seasons: 2, land: "any", category: "花卉" },
 
     // ===== 水果 =====
-    "猕猴桃": { name: "猕猴桃", emoji: "🥝", level: 69, seedPrice: 1914, sellPrice: 9400, exp: 480, firstTime: 4, reTime: 4, seasons: 2, land: "any", category: "水果" },
-    "梨": { name: "梨", emoji: "🍐", level: 70, seedPrice: 3828, sellPrice: 19000, exp: 960, firstTime: 8, reTime: 8, seasons: 2, land: "any", category: "水果" },
+    "猕猴桃": { name: "猕猴桃", emoji: "🥝", level: 69, seedPrice: 1914, sellPrice: 9400, exp: 480, firstTime: 4, reTime: 2, seasons: 2, land: "any", category: "水果" },
+    "梨": { name: "梨", emoji: "🍐", level: 70, seedPrice: 3828, sellPrice: 19000, exp: 960, firstTime: 8, reTime: 4, seasons: 2, land: "any", category: "水果" },
 
     // ===== 红土作物 =====
-    "爱心果": { name: "爱心果", emoji: "❤️", level: 71, seedPrice: 69552, sellPrice: 166848, exp: 3840, firstTime: 8, reTime: 8, seasons: 2, land: "red", category: "红土作物" },
+    "爱心果": { name: "爱心果", emoji: "❤️", level: 71, seedPrice: 69552, sellPrice: 166848, exp: 3840, firstTime: 8, reTime: 4, seasons: 2, land: "red", category: "红土作物" },
 
     // ===== 花卉 =====
-    "睡莲": { name: "睡莲", emoji: "🪷", level: 71, seedPrice: 5742, sellPrice: 28600, exp: 1440, firstTime: 12, reTime: 12, seasons: 2, land: "any", category: "花卉" },
+    "睡莲": { name: "睡莲", emoji: "🪷", level: 71, seedPrice: 5742, sellPrice: 28600, exp: 1440, firstTime: 12, reTime: 6, seasons: 2, land: "any", category: "花卉" },
 
     // ===== 水果 =====
-    "火龙果": { name: "火龙果", emoji: "🐉", level: 72, seedPrice: 11484, sellPrice: 57400, exp: 2880, firstTime: 24, reTime: 24, seasons: 2, land: "any", category: "水果" },
-    "枇杷": { name: "枇杷", emoji: "🍑", level: 73, seedPrice: 2088, sellPrice: 10400, exp: 510, firstTime: 4, reTime: 4, seasons: 2, land: "any", category: "水果" },
-    "樱桃": { name: "樱桃", emoji: "🍒", level: 74, seedPrice: 4176, sellPrice: 20800, exp: 1020, firstTime: 8, reTime: 8, seasons: 2, land: "any", category: "水果" },
-    "李子": { name: "李子", emoji: "🫐", level: 75, seedPrice: 6264, sellPrice: 31200, exp: 1530, firstTime: 12, reTime: 12, seasons: 2, land: "any", category: "水果" },
-    "荔枝": { name: "荔枝", emoji: "🔴", level: 76, seedPrice: 12528, sellPrice: 62600, exp: 3060, firstTime: 24, reTime: 24, seasons: 2, land: "any", category: "水果" },
-    "香瓜": { name: "香瓜", emoji: "🍈", level: 77, seedPrice: 2280, sellPrice: 11400, exp: 537, firstTime: 4, reTime: 4, seasons: 2, land: "any", category: "水果" },
-    "木瓜": { name: "木瓜", emoji: "🍈", level: 78, seedPrice: 4560, sellPrice: 22800, exp: 1074, firstTime: 8, reTime: 8, seasons: 2, land: "any", category: "水果" },
-    "桂圆": { name: "桂圆", emoji: "🟤", level: 79, seedPrice: 6840, sellPrice: 34200, exp: 1611, firstTime: 12, reTime: 12, seasons: 2, land: "any", category: "水果" },
-    "月柿": { name: "月柿", emoji: "🟠", level: 80, seedPrice: 13680, sellPrice: 68400, exp: 3222, firstTime: 24, reTime: 24, seasons: 2, land: "any", category: "水果" },
-    "杨桃": { name: "杨桃", emoji: "⭐", level: 81, seedPrice: 2472, sellPrice: 12200, exp: 567, firstTime: 4, reTime: 4, seasons: 2, land: "any", category: "水果" },
+    "火龙果": { name: "火龙果", emoji: "🐉", level: 72, seedPrice: 11484, sellPrice: 57400, exp: 2880, firstTime: 24, reTime: 12, seasons: 2, land: "any", category: "水果" },
+    "枇杷": { name: "枇杷", emoji: "🍑", level: 73, seedPrice: 2088, sellPrice: 10400, exp: 510, firstTime: 4, reTime: 2, seasons: 2, land: "any", category: "水果" },
+    "樱桃": { name: "樱桃", emoji: "🍒", level: 74, seedPrice: 4176, sellPrice: 20800, exp: 1020, firstTime: 8, reTime: 4, seasons: 2, land: "any", category: "水果" },
+    "李子": { name: "李子", emoji: "🫐", level: 75, seedPrice: 6264, sellPrice: 31200, exp: 1530, firstTime: 12, reTime: 6, seasons: 2, land: "any", category: "水果" },
+    "荔枝": { name: "荔枝", emoji: "🔴", level: 76, seedPrice: 12528, sellPrice: 62600, exp: 3060, firstTime: 24, reTime: 12, seasons: 2, land: "any", category: "水果" },
+    "香瓜": { name: "香瓜", emoji: "🍈", level: 77, seedPrice: 2280, sellPrice: 11400, exp: 537, firstTime: 4, reTime: 2, seasons: 2, land: "any", category: "水果" },
+    "木瓜": { name: "木瓜", emoji: "🍈", level: 78, seedPrice: 4560, sellPrice: 22800, exp: 1074, firstTime: 8, reTime: 4, seasons: 2, land: "any", category: "水果" },
+    "桂圆": { name: "桂圆", emoji: "🟤", level: 79, seedPrice: 6840, sellPrice: 34200, exp: 1611, firstTime: 12, reTime: 6, seasons: 2, land: "any", category: "水果" },
+    "月柿": { name: "月柿", emoji: "🟠", level: 80, seedPrice: 13680, sellPrice: 68400, exp: 3222, firstTime: 24, reTime: 12, seasons: 2, land: "any", category: "水果" },
+    "杨桃": { name: "杨桃", emoji: "⭐", level: 81, seedPrice: 2472, sellPrice: 12200, exp: 567, firstTime: 4, reTime: 2, seasons: 2, land: "any", category: "水果" },
 
     // ===== 红土作物 =====
-    "蔷薇": { name: "蔷薇", emoji: "🌹", level: 81, seedPrice: 2898, sellPrice: 1728, exp: 720, firstTime: 8, reTime: 8, seasons: 2, land: "red", category: "红土作物" },
-    "蝴蝶兰": { name: "蝴蝶兰", emoji: "🦋", level: 81, seedPrice: 8694, sellPrice: 5208, exp: 720, firstTime: 8, reTime: 8, seasons: 2, land: "red", category: "红土作物" },
+    "蔷薇": { name: "蔷薇", emoji: "🌹", level: 81, seedPrice: 2898, sellPrice: 1728, exp: 720, firstTime: 8, reTime: 4, seasons: 2, land: "red", category: "红土作物" },
+    "蝴蝶兰": { name: "蝴蝶兰", emoji: "🦋", level: 81, seedPrice: 8694, sellPrice: 5208, exp: 720, firstTime: 8, reTime: 4, seasons: 2, land: "red", category: "红土作物" },
 
     // ===== 水果 =====
-    "哈密瓜": { name: "哈密瓜", emoji: "🍈", level: 82, seedPrice: 4944, sellPrice: 24600, exp: 1134, firstTime: 8, reTime: 8, seasons: 2, land: "any", category: "水果" },
-    "桑葚": { name: "桑葚", emoji: "🫐", level: 83, seedPrice: 7416, sellPrice: 37000, exp: 1701, firstTime: 12, reTime: 12, seasons: 2, land: "any", category: "水果" },
-    "柠檬": { name: "柠檬", emoji: "🍋", level: 84, seedPrice: 14832, sellPrice: 74000, exp: 3402, firstTime: 24, reTime: 24, seasons: 2, land: "any", category: "水果" },
-    "芒果": { name: "芒果", emoji: "🥭", level: 85, seedPrice: 2682, sellPrice: 13400, exp: 597, firstTime: 4, reTime: 4, seasons: 2, land: "any", category: "水果" },
-    "杨梅": { name: "杨梅", emoji: "🫐", level: 86, seedPrice: 5364, sellPrice: 26800, exp: 1194, firstTime: 8, reTime: 8, seasons: 2, land: "any", category: "水果" },
-    "榴莲": { name: "榴莲", emoji: "🍈", level: 87, seedPrice: 8046, sellPrice: 40200, exp: 1791, firstTime: 12, reTime: 12, seasons: 2, land: "any", category: "水果" },
-    "番石榴": { name: "番石榴", emoji: "🍐", level: 88, seedPrice: 16092, sellPrice: 80400, exp: 3582, firstTime: 24, reTime: 24, seasons: 2, land: "any", category: "水果" },
+    "哈密瓜": { name: "哈密瓜", emoji: "🍈", level: 82, seedPrice: 4944, sellPrice: 24600, exp: 1134, firstTime: 8, reTime: 4, seasons: 2, land: "any", category: "水果" },
+    "桑葚": { name: "桑葚", emoji: "🫐", level: 83, seedPrice: 7416, sellPrice: 37000, exp: 1701, firstTime: 12, reTime: 6, seasons: 2, land: "any", category: "水果" },
+    "柠檬": { name: "柠檬", emoji: "🍋", level: 84, seedPrice: 14832, sellPrice: 74000, exp: 3402, firstTime: 24, reTime: 12, seasons: 2, land: "any", category: "水果" },
+    "芒果": { name: "芒果", emoji: "🥭", level: 85, seedPrice: 2682, sellPrice: 13400, exp: 597, firstTime: 4, reTime: 2, seasons: 2, land: "any", category: "水果" },
+    "杨梅": { name: "杨梅", emoji: "🫐", level: 86, seedPrice: 5364, sellPrice: 26800, exp: 1194, firstTime: 8, reTime: 4, seasons: 2, land: "any", category: "水果" },
+    "榴莲": { name: "榴莲", emoji: "🍈", level: 87, seedPrice: 8046, sellPrice: 40200, exp: 1791, firstTime: 12, reTime: 6, seasons: 2, land: "any", category: "水果" },
+    "番石榴": { name: "番石榴", emoji: "🍐", level: 88, seedPrice: 16092, sellPrice: 80400, exp: 3582, firstTime: 24, reTime: 12, seasons: 2, land: "any", category: "水果" },
 
     // ===== 红土作物 =====
-    "瓶子树": { name: "瓶子树", emoji: "🫙", level: 89, seedPrice: 2898, sellPrice: 14400, exp: 627, firstTime: 4, reTime: 4, seasons: 2, land: "red", category: "红土作物" },
+    "瓶子树": { name: "瓶子树", emoji: "🫙", level: 89, seedPrice: 2898, sellPrice: 14400, exp: 627, firstTime: 4, reTime: 2, seasons: 2, land: "red", category: "红土作物" },
 
     // ===== 水果 =====
-    "蓝莓": { name: "蓝莓", emoji: "🫐", level: 90, seedPrice: 5796, sellPrice: 28800, exp: 1254, firstTime: 8, reTime: 8, seasons: 2, land: "any", category: "水果" },
+    "蓝莓": { name: "蓝莓", emoji: "🫐", level: 90, seedPrice: 5796, sellPrice: 28800, exp: 1254, firstTime: 8, reTime: 4, seasons: 2, land: "any", category: "水果" },
 
     // ===== 红土作物 =====
-    "猪笼草": { name: "猪笼草", emoji: "🌿", level: 91, seedPrice: 8694, sellPrice: 43400, exp: 1881, firstTime: 12, reTime: 12, seasons: 2, land: "red", category: "红土作物" },
+    "猪笼草": { name: "猪笼草", emoji: "🌿", level: 91, seedPrice: 8694, sellPrice: 43400, exp: 1881, firstTime: 12, reTime: 6, seasons: 2, land: "red", category: "红土作物" },
 
     // ===== 水果 =====
-    "山竹": { name: "山竹", emoji: "🟣", level: 92, seedPrice: 17388, sellPrice: 86800, exp: 3762, firstTime: 24, reTime: 24, seasons: 2, land: "any", category: "水果" },
+    "山竹": { name: "山竹", emoji: "🟣", level: 92, seedPrice: 17388, sellPrice: 86800, exp: 3762, firstTime: 24, reTime: 12, seasons: 2, land: "any", category: "水果" },
 
     // ===== 花卉 =====
-    "曼陀罗华": { name: "曼陀罗华", emoji: "🤍", level: 93, seedPrice: 3120, sellPrice: 15600, exp: 660, firstTime: 4, reTime: 4, seasons: 2, land: "any", category: "花卉" },
+    "曼陀罗华": { name: "曼陀罗华", emoji: "🤍", level: 93, seedPrice: 3120, sellPrice: 15600, exp: 660, firstTime: 4, reTime: 2, seasons: 2, land: "any", category: "花卉" },
 
     // ===== 红土作物 =====
-    "曼珠沙华": { name: "曼珠沙华", emoji: "🔴", level: 94, seedPrice: 6240, sellPrice: 31200, exp: 1320, firstTime: 8, reTime: 8, seasons: 2, land: "red", category: "红土作物" },
+    "曼珠沙华": { name: "曼珠沙华", emoji: "🔴", level: 94, seedPrice: 6240, sellPrice: 31200, exp: 1320, firstTime: 8, reTime: 4, seasons: 2, land: "red", category: "红土作物" },
 
     // ===== 蔬菜 =====
-    "苦瓜": { name: "苦瓜", emoji: "🥒", level: 95, seedPrice: 9360, sellPrice: 46800, exp: 1980, firstTime: 12, reTime: 12, seasons: 2, land: "any", category: "蔬菜" },
+    "苦瓜": { name: "苦瓜", emoji: "🥒", level: 95, seedPrice: 9360, sellPrice: 46800, exp: 1980, firstTime: 12, reTime: 6, seasons: 2, land: "any", category: "蔬菜" },
 
     // ===== 花卉 =====
-    "天堂鸟": { name: "天堂鸟", emoji: "🐦", level: 96, seedPrice: 18720, sellPrice: 93600, exp: 3960, firstTime: 24, reTime: 24, seasons: 2, land: "any", category: "花卉" },
+    "天堂鸟": { name: "天堂鸟", emoji: "🐦", level: 96, seedPrice: 18720, sellPrice: 93600, exp: 3960, firstTime: 24, reTime: 12, seasons: 2, land: "any", category: "花卉" },
 
     // ===== 蔬菜 =====
-    "冬瓜": { name: "冬瓜", emoji: "🥒", level: 97, seedPrice: 3360, sellPrice: 16800, exp: 693, firstTime: 4, reTime: 4, seasons: 2, land: "any", category: "蔬菜" },
+    "冬瓜": { name: "冬瓜", emoji: "🥒", level: 97, seedPrice: 3360, sellPrice: 16800, exp: 693, firstTime: 4, reTime: 2, seasons: 2, land: "any", category: "蔬菜" },
 
     // ===== 花卉 =====
-    "豹皮花": { name: "豹皮花", emoji: "🌸", level: 98, seedPrice: 6720, sellPrice: 33600, exp: 1386, firstTime: 8, reTime: 8, seasons: 2, land: "any", category: "花卉" },
+    "豹皮花": { name: "豹皮花", emoji: "🌸", level: 98, seedPrice: 6720, sellPrice: 33600, exp: 1386, firstTime: 8, reTime: 4, seasons: 2, land: "any", category: "花卉" },
 
     // ===== 水果 =====
-    "杏子": { name: "杏子", emoji: "🍑", level: 99, seedPrice: 10080, sellPrice: 50400, exp: 2079, firstTime: 12, reTime: 12, seasons: 2, land: "any", category: "水果" },
-    "金桔": { name: "金桔", emoji: "🍊", level: 100, seedPrice: 20160, sellPrice: 100800, exp: 4158, firstTime: 24, reTime: 24, seasons: 2, land: "any", category: "水果" },
-    "红毛丹": { name: "红毛丹", emoji: "🔴", level: 102, seedPrice: 3600, sellPrice: 18000, exp: 726, firstTime: 4, reTime: 4, seasons: 2, land: "any", category: "水果" },
+    "杏子": { name: "杏子", emoji: "🍑", level: 99, seedPrice: 10080, sellPrice: 50400, exp: 2079, firstTime: 12, reTime: 6, seasons: 2, land: "any", category: "水果" },
+    "金桔": { name: "金桔", emoji: "🍊", level: 100, seedPrice: 20160, sellPrice: 100800, exp: 4158, firstTime: 24, reTime: 12, seasons: 2, land: "any", category: "水果" },
+    "红毛丹": { name: "红毛丹", emoji: "🔴", level: 102, seedPrice: 3600, sellPrice: 18000, exp: 726, firstTime: 4, reTime: 2, seasons: 2, land: "any", category: "水果" },
 
     // ===== 花卉 =====
     "宝华玉兰": { name: "宝华玉兰", emoji: "🌸", level: 104, seedPrice: 7200, sellPrice: 36000, exp: 1452, firstTime: 8, reTime: 8, seasons: 2, land: "any", category: "花卉" },
