@@ -42,6 +42,10 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStickyOffsets();
 
     // 初始化分析页面
+    const farmLevelInput = document.getElementById('farm-level-input');
+    if (farmLevelInput) {
+        farmLevelInput.value = analysisState.farmLevel;
+    }
     selectAnalysisLand(analysisState.selectedLand || 'gold');
 
     window.addEventListener('resize', updateStickyOffsets);
@@ -2539,7 +2543,7 @@ document.addEventListener('click', (e) => {
 
 // ========== 分析页面相关功能 ==========
 let analysisState = {
-    farmLevel: 1,
+    farmLevel: parseInt(localStorage.getItem('farm-analysis-level')) || 1,
     selectedLand: 'gold',
     sortBy: 'income',
     results: []
@@ -2552,6 +2556,9 @@ function updateFarmLevel(level) {
     if (level > 140) level = 140;
 
     analysisState.farmLevel = level;
+
+    // 保存到localStorage
+    localStorage.setItem('farm-analysis-level', level);
 
     // 更新提示文本
     const hintText = document.getElementById('plant-count-hint');
