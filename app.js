@@ -791,6 +791,16 @@ function startPlantTimer(plantName, preferredLandType = null) {
                 seasonTimes: seasonTimes
             };
 
+            // 调试日志：打印多季作物时间信息
+            console.log('[种植] 创建多季作物闹钟:', {
+                plant: plantName,
+                land: landType,
+                seasons: timer.seasons,
+                seasonTimes: timer.seasonTimes,
+                firstSeasonTime: growTime,
+                totalSeconds: timer.totalSeconds
+            });
+
             state.timers[id] = timer;
             state.alerts.push(timer);
             saveState();
@@ -900,11 +910,15 @@ async function sendBrowserAlarmNotification(timer, message) {
             state: registration?.state
         });
 
-        if (registration?.showNotification) {
+        if (registration?.active) {
             console.log('[通知] 使用 Service Worker 发送通知');
-            await registration.showNotification('🌾 农场收菜提醒', options);
-            console.log('[通知] Service Worker 通知发送成功');
-            return { ok: true, channel: 'service-worker' };
+            registration.active.postMessage({
+                type: 'SHOW_NOTIFICATION',
+                title: '🌾 农场收菜提醒',
+                options: options
+            });
+            console.log('[通知] Service Worker 通知消息已发送');
+            return { ok: true, channel: 'service-worker-message' };
         } else {
             console.log('[通知] Service Worker 不可用，准备使用页面通知');
         }
@@ -965,6 +979,16 @@ function triggerAlarm(timer) {
             const nextSeasonHours = timer.seasonTimes[nextSeason - 1];
             const nextSeasonSeconds = Math.round(nextSeasonHours * 3600);
             const nextEndTimeISO = new Date(Date.now() + nextSeasonSeconds * 1000);
+
+            // 调试日志：打印下一季闹钟创建信息
+            console.log('[多季作物] 创建下一季闹钟:', {
+                plant: timer.plant,
+                currentSeason: timer.currentSeason,
+                nextSeason: nextSeason,
+                nextSeasonHours: nextSeasonHours,
+                nextSeasonSeconds: nextSeasonSeconds,
+                nextEndTime: nextEndTimeISO.toISOString()
+            });
 
             // 创建下一季的闹钟
             const nextTimer = {
@@ -2520,15 +2544,19 @@ document.addEventListener('visibilitychange', () => {
         });
         cleanupExpiredAlerts();
     } else {
-        // 页面失去焦点时，优雅停止语音识别
+        // 页面失去焦点时，延迟停止语音识别（给用户缓冲时间）
         if (state.voiceActive && state.recognition) {
-            voiceSession.stopReason = 'manual-stop';
-            clearVoiceAutoStop();
-            try {
-                state.recognition.stop();
-            } catch (e) {
-                // 忽略停止时的错误
-            }
+            setTimeout(() => {
+                if (state.voiceActive && document.hidden) {
+                    voiceSession.stopReason = 'manual-stop';
+                    clearVoiceAutoStop();
+                    try {
+                        state.recognition.stop();
+                    } catch (e) {
+                        // 忽略停止时的错误
+                    }
+                }
+            }, 3000);  // 3秒后如果还在后台才停止
         }
     }
 });
