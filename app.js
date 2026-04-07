@@ -2540,6 +2540,9 @@ function showConfirm(title, message, onConfirm) {
 // ========== 页面可见性恢复时刷新 ==========
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
+        // 页面恢复时清空防重入集合，允许后台错过的闹钟重新触发通知
+        triggeredAlarmIds.clear();
+
         renderRunningTimers();
         renderAlertsList();
         // 检查是否有错过的闹钟
