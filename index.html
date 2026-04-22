@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>🌾 QQ农场计时器</title>
-    <meta name="description" content="QQ农场计时器，支持快速定时、植物种植、睡前方案、云同步与桌面快速打开。">
+    <meta name="description" content="QQ农场计时器，植物种植、效率分析，支持土地加成与等级解锁。">
     <meta name="application-name" content="QQ农场计时器">
     <meta name="theme-color" content="#4CAF50">
     <meta name="mobile-web-app-capable" content="yes">
@@ -22,25 +22,13 @@
         <header class="app-header">
             <h1>🌾 QQ农场计时器</h1>
             <div class="header-actions">
-                <button class="install-header-btn header-bubble-btn" id="install-header-btn" data-pwa-install="header" onclick="promptPwaInstall()" title="安装到桌面" aria-label="安装到桌面" hidden>
-                    <span class="install-btn-icon" aria-hidden="true">
-                        <svg class="install-icon-svg" viewBox="0 0 20 20" fill="none">
-                            <path d="M10 3.5V11.5" />
-                            <path d="M6.5 8.5L10 12L13.5 8.5" />
-                            <path d="M4.5 15.5H15.5" />
-                        </svg>
-                    </span>
-                    <span class="install-btn-text">安装</span>
-                </button>
                 <button class="share-header-btn header-bubble-btn" onclick="handleShare()" title="分享给好友" aria-label="分享给好友">🔗</button>
-                <button class="settings-btn header-bubble-btn" onclick="toggleSettings()" title="设置" aria-label="设置">⚙️</button>
             </div>
         </header>
 
         <!-- 标签页导航 -->
         <nav class="tab-nav">
-            <button class="tab-btn active" data-tab="timer" onclick="switchTab('timer')">⏰ 定时</button>
-            <button class="tab-btn" data-tab="plant" onclick="switchTab('plant')">🌱 种植</button>
+            <button class="tab-btn active" data-tab="plant" onclick="switchTab('plant')">🌱 种植</button>
             <button class="tab-btn" data-tab="analysis" onclick="switchTab('analysis')">📊 效率</button>
         </nav>
 
@@ -53,64 +41,9 @@
             <span class="particle p5">💧</span>
         </div>
 
-        <!-- 定时页面 -->
-        <section id="tab-timer" class="tab-content active">
-            <div class="card">
-                <h2>⏰ 快速定时</h2>
-                
-                <!-- 滚轮选择器 -->
-                <div class="time-picker">
-                    <div class="wheel-group">
-                        <div class="wheel-container" id="hour-wheel">
-                            <button class="wheel-btn up" onclick="wheelAdjust('hour', 1)">▲</button>
-                            <input type="number" class="wheel-input" id="hour-input" value="0" min="0" max="72" step="1" onclick="this.select()" oninput="handleWheelInput('hour', this.value)" onblur="handleWheelBlur('hour', this.value)" onkeydown="handleWheelKeydown(event, 'hour')">
-                            <button class="wheel-btn down" onclick="wheelAdjust('hour', -1)">▼</button>
-                        </div>
-                        <span class="wheel-sep">时</span>
-                    </div>
-                    <div class="wheel-group">
-                        <div class="wheel-container" id="minute-wheel">
-                            <button class="wheel-btn up" onclick="wheelAdjust('minute', 1)">▲</button>
-                            <input type="number" class="wheel-input" id="minute-input" value="0" min="0" max="59" step="1" onclick="this.select()" oninput="handleWheelInput('minute', this.value)" onblur="handleWheelBlur('minute', this.value)" onkeydown="handleWheelKeydown(event, 'minute')">
-                            <button class="wheel-btn down" onclick="wheelAdjust('minute', -1)">▼</button>
-                        </div>
-                        <span class="wheel-sep">分</span>
-                    </div>
-                </div>
-
-                <!-- 快捷时间按钮 -->
-                <div class="quick-times">
-                    <button onclick="setQuickTime(3600)">1小时</button>
-                    <button onclick="setQuickTime(14400)">4小时</button>
-                    <button onclick="setQuickTime(28800)">8小时</button>
-                    <button onclick="setQuickTime(43200)">12小时</button>
-                </div>
-
-                <button class="primary-btn" onclick="startTimer()">
-                    🚀 开始计时
-                </button>
-            </div>
-
-            <!-- 闹钟列表 -->
-            <div class="card" id="alarm-list-card">
-                <div class="history-header">
-                    <h2>🔔 闹钟列表</h2>
-                    <span id="history-count" class="history-count">0条</span>
-                </div>
-                <p class="hint-text">当前生效中的闹钟和历史已触发闹钟混合显示，按最近相关时间排序。</p>
-                <div id="alerts-list" class="alerts-list">
-                    <p class="empty-text">暂无闹钟记录，去设置一个吧！</p>
-                </div>
-                <div id="history-clear-wrap" class="history-clear-wrap" style="display:none;">
-                    <button class="danger-btn" onclick="clearHistory()">🗑️ 清空历史记录</button>
-                </div>
-            </div>
-        </section>
-
         <!-- 种植页面 -->
-        <section id="tab-plant" class="tab-content">
+        <section id="tab-plant" class="tab-content active">
             <div class="plant-sticky-tools">
-                <!-- 土地类型选择器 -->
                 <div class="land-selector">
                     <span class="land-label">土地类型：</span>
                     <div class="land-options" id="land-options">
@@ -122,7 +55,6 @@
                 </div>
                 <div class="land-info" id="land-info">
                     <span class="land-bonus" id="land-bonus-text">增产+28% · 成熟时间-20%</span>
-                    <div class="land-filter-note" id="land-filter-note">当前为普通土地：红土地及以上专属作物不会显示。</div>
                 </div>
                 <div class="plant-search">
                     <input type="text" id="plant-search-input" placeholder="🔍 搜索植物名称..." oninput="filterPlants(this.value)">
@@ -131,49 +63,16 @@
 
             <div class="card">
                 <h2>🌱 选择植物品种</h2>
-                <div class="plant-grid" id="plant-grid">
-                    <!-- 动态生成 -->
-                </div>
+                <div class="plant-grid" id="plant-grid"></div>
             </div>
-
-            <!-- 自定义种植时间 -->
-            <div class="card">
-                <h2>✏️ 自定义种植</h2>
-                <div class="custom-plant-form">
-                    <input type="text" id="custom-plant-name" placeholder="植物名称（如：草莓）">
-                    <div class="time-input-row">
-                        <input type="number" id="custom-hours" placeholder="小时" min="0" max="200">
-                        <span>时</span>
-                        <input type="number" id="custom-minutes" placeholder="分钟" min="0" max="59">
-                        <span>分</span>
-                    </div>
-                    <div class="season-input-row">
-                        <span class="season-label">季数</span>
-                        <div class="counter season-counter">
-                            <button onclick="adjustCount('custom-seasons', -1)">−</button>
-                            <input type="number" id="custom-seasons" value="1" min="1" max="10">
-                            <button onclick="adjustCount('custom-seasons', 1)">+</button>
-                        </div>
-                        <span class="season-hint" id="season-time-hint"></span>
-                    </div>
-                    <button class="primary-btn" onclick="addCustomPlant()">添加自定义植物</button>
-                </div>
-                <!-- 已添加的自定义植物列表 -->
-                <div id="custom-plants-list" class="custom-plants-list" style="display:none;">
-                    <h3>📦 已添加的自定义植物</h3>
-                    <div id="custom-plants-container"></div>
-                </div>
-            </div>
-
         </section>
 
-        <!-- 分析页面 -->
+        <!-- 效率分析页面 -->
         <section id="tab-analysis" class="tab-content">
             <div class="card">
                 <h2>📊 收益/经验效率</h2>
                 <p class="hint-text">查看不同作物的每小时收益和经验，帮助你选择最优种植方案！</p>
 
-                <!-- 农场等级选择 -->
                 <div class="farm-level-selector">
                     <div class="level-header">
                         <label for="farm-level-input">当前农场等级</label>
@@ -188,7 +87,6 @@
                     <span class="hint-text" id="plant-count-hint">显示所有植物</span>
                 </div>
 
-                <!-- 土地类型和排序选择 -->
                 <div class="analysis-controls">
                     <div class="control-group">
                         <label>土地类型：</label>
@@ -214,401 +112,66 @@
                     </div>
                 </div>
 
-                <!-- 分析结果 -->
                 <div id="analysis-result" class="analysis-result" style="display:none;">
-                    <div class="analysis-summary" id="analysis-summary">
-                        <!-- 动态生成 -->
-                    </div>
-                    <div class="plant-list" id="efficiency-plant-list">
-                        <!-- 动态生成 -->
-                    </div>
+                    <div class="analysis-summary" id="analysis-summary"></div>
+                    <div class="plant-list" id="efficiency-plant-list"></div>
                 </div>
             </div>
         </section>
 
-
-        <!-- 分享弹窗 -->
-
-        <!-- 设置面板 -->
-        <div class="modal-overlay" id="settings-modal" style="display:none;">
-            <div class="modal">
-                <h2>⚙️ 设置</h2>
-                <div class="setting-item">
-                    <label>提醒音量</label>
-                    <input type="range" id="volume-slider" min="0" max="100" value="70" oninput="updateVolume(this.value)">
-                </div>
-                <div class="setting-item">
-                    <label>提醒方式</label>
-                    <div class="toggle-group">
-                        <label class="toggle-label">
-                            <input type="checkbox" id="notify-sound" checked onchange="updateNotifySetting('notifySound')"> 声音提醒
-                        </label>
-                        <label class="toggle-label">
-                            <input type="checkbox" id="notify-vibrate" onchange="updateNotifySetting('notifyVibrate')"> 震动提醒
-                        </label>
-                        <label class="toggle-label">
-                            <input type="checkbox" id="notify-push" checked onchange="updateNotifySetting('notifyPush')"> 浏览器通知
-                        </label>
-                        <label class="toggle-label">
-                            <input type="checkbox" id="notify-wechat" checked onchange="updateNotifySetting('notifyWeChat')"> 微信推送
-                        </label>
-                    </div>
-                    <div id="notification-status" class="sync-status" style="margin-top:8px;">检查中...</div>
-                    <button class="secondary-btn test-notify-btn" onclick="testBrowserNotification()" style="margin-top:12px;">🔔 测试浏览器通知</button>
-                </div>
-                <div class="setting-item">
-                    <label>提醒声音</label>
-                    <select id="alarm-sound-select" onchange="updateAlarmSound(this.value)">
-                        <option value="classic">经典铃声</option>
-                        <option value="chicken">🐔 小鸡叫声</option>
-                        <option value="harvest">🌾 收获音效</option>
-                        <option value="alert">⚠️ 警报</option>
-                    </select>
-                </div>
-                <div class="setting-item">
-                    <button class="danger-btn" onclick="clearAllAlerts()">🗑️ 清除所有闹钟</button>
-                </div>
-
-                <div class="setting-item pwa-entry">
-                    <div class="setting-row">
-                        <label>📲 安装到桌面</label>
-                        <span class="pwa-badge" id="pwa-install-badge">推荐</span>
-                    </div>
-                    <p class="sync-desc pwa-install-desc" id="pwa-install-hint">安装后可像 App 一样从桌面或主屏幕一键打开。</p>
-                    <button class="secondary-btn install-pwa-btn" id="install-pwa-btn" data-pwa-install="panel" onclick="promptPwaInstall()">
-                        <span class="install-btn-icon" aria-hidden="true">
-                            <svg class="install-icon-svg" viewBox="0 0 20 20" fill="none">
-                                <path d="M10 3.5V11.5" />
-                                <path d="M6.5 8.5L10 12L13.5 8.5" />
-                                <path d="M4.5 15.5H15.5" />
-                            </svg>
-                        </span>
-                        <span class="install-btn-copy">添加到桌面</span>
-                    </button>
-                </div>
-
-                <!-- 云同步设置 -->
-                <div class="setting-divider"></div>
-                <div class="setting-item">
-                    <div class="setting-row">
-                        <label>☁️ 云同步 & 推送</label>
-                        <button class="help-btn" onclick="showSyncHelp()" title="查看配置指引">❓</button>
-                    </div>
-                    <div id="sync-status" class="sync-status">☁️ 未连接</div>
-                    <p class="sync-desc">连接后可在多设备间同步闹钟，并通过微信接收推送通知（即使关闭浏览器也能收到）</p>
-                </div>
-
-                <div class="setting-item">
-                    <label>GitHub Token <span id="token-status" class="status-badge">未配置</span></label>
-                    <input type="text" id="gh-token-input" class="config-input" placeholder="ghp_xxxxx（需要 gist 权限）">
-                    <p class="config-hint">
-                        <a href="https://github.com/settings/tokens/new?scopes=gist&description=QQFarmTimer" target="_blank" rel="noopener">点此创建 Token →</a>
-                        勾选 gist 权限即可
-                    </p>
-                </div>
-
-                <div class="setting-item">
-                    <label>Server酱 SendKey <span id="sendkey-status" class="status-badge">未配置</span></label>
-                    <input type="text" id="send-key-input" class="config-input" placeholder="SCTxxxxx">
-                    <p class="config-hint">
-                        <a href="https://sct.ftqq.com/" target="_blank" rel="noopener">Server酱 →</a>
-                        用 GitHub 登录后获取 SendKey
-                    </p>
-                    <p class="config-hint">"测试推送"会直接用当前设备保存的 SendKey 发送；闹钟到点时现在会优先由当前页面直发微信，后台定时任务继续兜底补发。</p>
-                    <p class="config-hint" style="color: #f57c00;">⚠️ Server酱免费版每天限推送5次，超过后当日将无法收到微信消息。</p>
-                </div>
-
-                <div class="setting-item config-transfer-entry">
-                    <div class="setting-row">
-                        <label>🧳 配置迁移</label>
-                        <span class="status-badge">本地文件</span>
-                    </div>
-                    <p class="config-hint config-transfer-hint">Token / SendKey 不会默认云同步。需要迁移到安装版或新设备时，请手动导出后再导入。</p>
-                    <div class="sync-actions config-transfer-actions">
-                        <button class="secondary-btn" onclick="CloudSync.exportConfig()" style="font-size:14px;padding:10px;">⬇️ 导出本地配置</button>
-                        <button class="secondary-btn" onclick="CloudSync.openImportConfig()" style="font-size:14px;padding:10px;">⬆️ 导入本地配置</button>
-                    </div>
-                    <input type="file" id="config-import-input" accept="application/json,.json" hidden onchange="CloudSync.importConfigFromFile(event)">
-                </div>
-
-                <div class="setting-item sync-actions">
-                    <button class="primary-btn" onclick="CloudSync.saveConfig()" style="font-size:14px;padding:10px;">💾 保存配置</button>
-                    <button class="secondary-btn" onclick="CloudSync.syncNow()" style="font-size:14px;padding:10px;">🔄 立即同步</button>
-                    <button class="secondary-btn" onclick="CloudSync.testPush()" style="font-size:14px;padding:10px;">📡 测试推送</button>
-                </div>
-
-                <div class="setting-item" style="border-top:1px solid #ddd; padding-top:15px; margin-top:15px;">
-                    <div style="text-align:center; color:#666; font-size:13px; line-height:1.6;">
-                        <div style="margin-bottom:5px;">🌾 QQ农场计时器</div>
-                        <div style="margin-bottom:5px;">版本 1.4.0</div>
-                        <div>Made with ❤️ by <strong>noemi</strong></div>
-                        <div style="margin-top:5px; font-size:12px; color:#999;">© 2026 noemi. All rights reserved.</div>
-                    </div>
-                </div>
-
-                <button class="secondary-btn" onclick="toggleSettings()">关闭</button>
+        <!-- 版本更新提示 -->
+        <div class="toast toast-update" id="update-toast" style="display:none;">
+            <div class="toast-content">
+                <span class="toast-icon">🆕</span>
+                <span class="toast-message">发现新版本，点击刷新获取最新功能</span>
+                <button class="toast-action" onclick="refreshApp()">刷新</button>
             </div>
+            <button class="toast-close" onclick="dismissUpdateToast()">✕</button>
         </div>
-    </div>
 
-    <!-- 提醒弹窗 -->
-    <div class="alarm-overlay" id="alarm-overlay" style="display:none;">
-        <div class="alarm-popup">
-            <div class="alarm-icon">🌾🔔</div>
-            <h2>收菜时间到！</h2>
-            <p id="alarm-message"></p>
-            <button class="primary-btn alarm-dismiss" onclick="dismissAlarm()">我知道了</button>
-        </div>
-    </div>
-
-    <!-- 版本更新提示 -->
-    <div class="toast toast-update" id="update-toast" style="display:none;">
-        <div class="toast-content">
-            <span class="toast-icon">🆕</span>
-            <span class="toast-message">发现新版本，点击刷新获取最新功能</span>
-            <button class="toast-action" onclick="refreshApp()">刷新</button>
-        </div>
-        <button class="toast-close" onclick="dismissUpdateToast()">✕</button>
-    </div>
-
-    <!-- PWA 重新安装提示 -->
-    <div class="toast toast-update" id="pwa-reinstall-toast" style="display:none;">
-        <div class="toast-content">
-            <span class="toast-icon">🔄</span>
-            <span class="toast-message">PWA 已更新，建议重新安装以获得最佳体验</span>
-            <button class="toast-action" onclick="dismissPwaReinstallToast()">知道了</button>
-        </div>
-    </div>
-
-    <!-- 分析帮助弹窗 -->
-    <div class="modal-overlay" id="analysis-help-modal" style="display:none;">
-        <div class="modal help-modal">
-            <h2>📊 效率说明</h2>
-            <div class="help-content">
-                <div class="help-section">
-                    <h3>💰 每小时收益/经验</h3>
-                    <p><strong>每小时收益</strong>：作物每小时的利润。利润 = 售价 - 种子成本。</p>
-                    <p><strong>每小时经验</strong>：作物每小时获得的经验值。经验用于提升农场等级。</p>
-                    <p class="formula">每小时收益 = (售价 - 种子成本) × 季数 ÷ 总成熟时间</p>
-                    <p class="formula">每小时经验 = 经验 × 季数 ÷ 总成熟时间</p>
+        <!-- 分析帮助弹窗 -->
+        <div class="modal-overlay" id="analysis-help-modal" style="display:none;">
+            <div class="modal help-modal">
+                <h2>📊 效率说明</h2>
+                <div class="help-content">
+                    <div class="help-section">
+                        <h3>💰 每小时收益/经验</h3>
+                        <p><strong>每小时收益</strong>：作物每小时的利润。利润 = 售价 - 种子成本。</p>
+                        <p><strong>每小时经验</strong>：作物每小时获得的经验值。</p>
+                        <p class="formula">每小时收益 = (售价 - 种子成本) × 季数 ÷ 总成熟时间</p>
+                        <p class="formula">每小时经验 = 经验 × 季数 ÷ 总成熟时间</p>
+                    </div>
+                    <div class="help-divider"></div>
+                    <div class="help-section">
+                        <h3>📈 总收益/经验</h3>
+                        <p><strong>总收益</strong>：全部收获后的总利润。</p>
+                        <p><strong>总经验</strong>：全部收获后的总经验。</p>
+                        <p class="formula">总收益 = (售价 - 种子成本) × 季数</p>
+                        <p class="formula">总经验 = 经验 × 季数</p>
+                    </div>
+                    <div class="help-divider"></div>
+                    <div class="help-section">
+                        <h3>⏱️ 成熟时间</h3>
+                        <p>作物从播种到全部收获完成所需的时间。</p>
+                        <p class="formula">总成熟时间 = 首季时间 + 再熟时间 × (季数 - 1)</p>
+                    </div>
+                    <div class="help-divider"></div>
+                    <div class="help-section">
+                        <h3>💡 土地加成</h3>
+                        <ul>
+                            <li><strong>🟫 普通土地</strong>：无加成</li>
+                            <li><strong>🔴 红土地</strong>：增产+10%</li>
+                            <li><strong>⬛ 黑土地</strong>：增产+20% · 成熟时间-20%</li>
+                            <li><strong>🟡 金土地</strong>：增产+28% · 成熟时间-20%</li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="help-divider"></div>
-                <div class="help-section">
-                    <h3>📈 总收益/经验</h3>
-                    <p><strong>总收益</strong>：作物<strong>全部收获</strong>后的总利润（多季作物会累加）。</p>
-                    <p><strong>总经验</strong>：作物<strong>全部收获</strong>后获得的总经验。</p>
-                    <p class="formula">总收益 = (售价 - 种子成本) × 季数</p>
-                    <p class="formula">总经验 = 经验 × 季数</p>
-                </div>
-                <div class="help-divider"></div>
-                <div class="help-section">
-                    <h3>⏱️ 成熟时间</h3>
-                    <p>作物从播种到<strong>全部收获完成</strong>所需的时间。</p>
-                    <p>多季作物的成熟时间是所有季数的总和，不同土地类型会影响成熟时间。</p>
-                    <p class="formula">总成熟时间 = 首季时间 + 再熟时间 × (季数 - 1)</p>
-                </div>
-                <div class="help-divider"></div>
-                <div class="help-section">
-                    <h3>💡 土地加成</h3>
-                    <p>不同土地对作物有不同影响：</p>
-                    <ul>
-                        <li><strong>🟫 普通土地</strong>：无加成</li>
-                        <li><strong>🔴 红土地</strong>：增产+10%</li>
-                        <li><strong>⬛ 黑土地</strong>：增产+20% · 成熟时间-20%</li>
-                        <li><strong>🟡 金土地</strong>：增产+28% · 成熟时间-20%</li>
-                    </ul>
-                </div>
-                <div class="help-divider"></div>
-                <div class="help-section">
-                    <h3>🎯 使用建议</h3>
-                    <ul>
-                        <li>想要<strong>快速赚钱</strong>：按"每小时收益"排序，选择前几名</li>
-                        <li>想要<strong>快速升级</strong>：按"每小时经验"排序，选择前几名</li>
-                        <li>想要<strong>最大化收益</strong>：按"总收益"排序，选择高价值作物</li>
-                        <li><strong>低级玩家</strong>：先升级土地，再考虑高价值作物</li>
-                    </ul>
-                </div>
+                <button class="primary-btn" onclick="closeAnalysisHelp()">知道了</button>
             </div>
-            <button class="primary-btn" onclick="closeAnalysisHelp()">知道了</button>
-        </div>
-    </div>
-
-    <!-- 云同步帮助弹窗 -->
-    <div class="modal-overlay" id="sync-help-modal" style="display:none;">
-        <div class="modal help-modal sync-help-modal">
-            <h2>☁️ 云同步 & 推送配置指引</h2>
-            <div class="help-content">
-                <div class="help-section">
-                    <h3>📋 配置步骤</h3>
-                    <p>完成以下 3 步即可开启云同步和微信推送：</p>
-                    <div class="step-list">
-                        <div class="step-item">
-                            <div class="step-number">1</div>
-                            <div class="step-content">
-                                <h4>创建 GitHub Token</h4>
-                                <p>GitHub Token 是用来授权应用访问你的账号存储数据的密钥。</p>
-                                <p><strong>📍 访问地址</strong>：点击下方蓝色链接可直接进入创建页面</p>
-                                <div class="url-box">
-                                    <code>https://github.com/settings/tokens/new?scopes=gist&description=QQFarmTimer</code>
-                                    <button class="copy-url-btn" onclick="copyToClipboard('https://github.com/settings/tokens/new?scopes=gist&description=QQFarmTimer')">复制</button>
-                                </div>
-                                <div class="step-image">
-                                    <div class="mock-browser">
-                                        <div class="browser-header">
-                                            <span class="browser-dot red"></span>
-                                            <span class="browser-dot yellow"></span>
-                                            <span class="browser-dot green"></span>
-                                            <span class="browser-url">github.com/settings/tokens/new</span>
-                                        </div>
-                                        <div class="browser-content">
-                                            <div class="token-form">
-                                                <div class="form-row">
-                                                    <label>Note (描述)</label>
-                                                    <div class="form-input">QQFarmTimer</div>
-                                                </div>
-                                                <div class="form-row">
-                                                    <label>Expiration (有效期)</label>
-                                                    <div class="form-select">30 days ▼</div>
-                                                </div>
-                                                <div class="form-row highlight">
-                                                    <div class="checkbox-wrapper">
-                                                        <div class="checkbox checked">✓</div>
-                                                        <span>gist (存储数据)</span>
-                                                    </div>
-                                                </div>
-                                                <div class="form-action">
-                                                    <div class="btn primary">Generate token (生成Token)</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p class="step-note">💡 <strong>关键操作</strong>：只需勾选 <code>gist</code> 这个权限，其他都不要勾选。有效期选择 30 天即可。</p>
-                                </div>
-                                <p><strong>📋 复制 Token</strong>：点击"Generate token"后，页面会显示一个长串字符（以 <code>ghp_</code> 开头），点击旁边的复制按钮，然后粘贴到应用的"GitHub Token"输入框中。</p>
-                                <p class="step-warning">⚠️ <strong>注意</strong>：Token 只会显示一次，务必马上复制保存！</p>
-                            </div>
-                        </div>
-                        <div class="step-item">
-                            <div class="step-number">2</div>
-                            <div class="step-content">
-                                <h4>获取 Server酱 SendKey</h4>
-                                <p>Server酱 是用来将推送通知发送到微信的服务。</p>
-                                <p><strong>📍 访问地址</strong>：点击下方蓝色链接可直接进入</p>
-                                <div class="url-box">
-                                    <code>https://sct.ftqq.com/</code>
-                                    <button class="copy-url-btn" onclick="copyToClipboard('https://sct.ftqq.com/')">复制</button>
-                                </div>
-                                <div class="step-image">
-                                    <div class="mock-browser">
-                                        <div class="browser-header">
-                                            <span class="browser-dot red"></span>
-                                            <span class="browser-dot yellow"></span>
-                                            <span class="browser-dot green"></span>
-                                            <span class="browser-url">sct.ftqq.com</span>
-                                        </div>
-                                        <div class="browser-content">
-                                            <div class="serverchan-home">
-                                                <div class="login-section">
-                                                    <div class="github-login-btn">
-                                                        <span class="github-icon">GH</span>
-                                                        <span>GitHub 登录</span>
-                                                    </div>
-                                                    <p class="login-hint">推荐使用 GitHub 账号登录，方便快捷</p>
-                                                </div>
-                                                <div class="sendkey-section">
-                                                    <div class="sendkey-label">SendKey (发送密钥)</div>
-                                                    <div class="sendkey-value">
-                                                        <code>SCT1234567890abcdef</code>
-                                                        <span class="copy-btn">📋</span>
-                                                    </div>
-                                                    <p class="sendkey-hint">登录后即可看到 SendKey，点击复制按钮复制</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <p class="step-note">💡 <strong>操作提示</strong>：登录后页面会显示 SendKey（以 <code>SCT</code> 开头），点击复制按钮，然后粘贴到应用的"Server酱 SendKey"输入框中。</p>
-                                </div>
-                                <p class="step-warning">⚠️ <strong>重要</strong>：SendKey 相当于你的微信推送密码，不要分享给他人！</p>
-                                <p class="step-warning">⚠️ <strong>使用限制</strong>：Server酱免费版每天限推送5次，超过后当日将无法收到微信消息。建议仅在关键闹钟启用微信推送。</p>
-                            </div>
-                        </div>
-                        <div class="step-item">
-                            <div class="step-number">3</div>
-                            <div class="step-content">
-                                <h4>测试并保存配置</h4>
-                                <div class="step-image">
-                                    <div class="config-demo">
-                                        <div class="config-step">
-                                            <div class="config-number">①</div>
-                                            <div class="config-text">点击"💾 保存配置"</div>
-                                        </div>
-                                        <div class="config-arrow">↓</div>
-                                        <div class="config-step">
-                                            <div class="config-number">②</div>
-                                            <div class="config-text">点击"📡 测试推送"</div>
-                                        </div>
-                                        <div class="config-arrow">↓</div>
-                                        <div class="config-step success">
-                                            <div class="config-number">✓</div>
-                                            <div class="config-text">收到微信消息，配置成功！</div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <p>确保能在微信中收到测试推送后，配置就完成了！</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="help-divider"></div>
-                <div class="help-section">
-                    <h3>🔧 高级功能</h3>
-                    <div class="feature-grid">
-                        <div class="feature-item">
-                            <div class="feature-icon">🔄</div>
-                            <h4>立即同步</h4>
-                            <p>手动触发云同步，将本地的闹钟、自定义植物等数据上传到 GitHub，或从 GitHub 拉取最新数据。</p>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">🧳</div>
-                            <h4>配置迁移</h4>
-                            <p>将 Token 和 SendKey 导出为 JSON 文件，在新设备或安装版中导入，无需重新配置。</p>
-                        </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">⏰</div>
-                            <h4>定时推送</h4>
-                            <p>即使关闭浏览器，GitHub Actions 也会每 5 分钟检查一次闹钟，到点自动推送微信。</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="help-divider"></div>
-                <div class="help-section">
-                    <h3>❓ 常见问题</h3>
-                    <div class="faq-list">
-                        <div class="faq-item">
-                            <div class="faq-question">Q: Token 过期了怎么办？</div>
-                            <div class="faq-answer">A: Token 有效期为 30 天，过期后需要重新创建。可以在 GitHub 的 Settings → Developer settings → Personal access tokens 中查看和管理。</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">Q: 为什么收不到微信推送？</div>
-                            <div class="faq-answer">A: 请检查：1）SendKey 是否正确；2）是否点击了"测试推送"并成功；3）GitHub Actions 是否正常运行（查看仓库的 Actions 标签页）；4）当日推送次数是否已达5次上限。</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">Q: Server酱推送次数有限制吗？</div>
-                            <div class="faq-answer">A: 是的。Server酱免费版每天限推送5次，超过后当日将无法收到微信消息。建议仅在关键闹钟启用微信推送，或升级到付费版（SCT0）以解除限制。</div>
-                        </div>
-                        <div class="faq-item">
-                            <div class="faq-question">Q: 多设备数据会冲突吗？</div>
-                            <div class="faq-answer">A: 不会。每次同步时会合并数据，以最后修改时间为准。建议在不同设备上尽量避免同时编辑相同内容。</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <button class="primary-btn" onclick="closeSyncHelp()">我知道了</button>
         </div>
     </div>
 
     <script src="plants-data.js"></script>
-    <script src="cloud-sync.js"></script>
     <script src="app.js"></script>
 </body>
 </html>
