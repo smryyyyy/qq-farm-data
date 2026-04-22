@@ -3,6 +3,7 @@
 // 支持红、黑、金、紫土地完整加成（增产、加速、经验）
 // 默认等级1，不记忆等级
 // 植物排序：特殊植物（新春红包等）在最后，其余按等级升序
+// 特殊植物前显示“活动植物：”标题
 // ============================================
 
 // ========== 全局状态 ==========
@@ -71,6 +72,9 @@ function selectLand(landType) {
     const detailText = document.getElementById('land-detail-text');
     if (detailText) {
         detailText.textContent = `解锁等级 Lv.${land.level}`;
+        // 设置为白色加粗字体
+        detailText.style.color = 'white';
+        detailText.style.fontWeight = 'bold';
     }
     
     renderPlantGrid(document.getElementById('plant-search-input').value);
@@ -111,7 +115,12 @@ function renderPlantGrid(filter = '') {
     }
     plants.sort(comparePlantsForUI);
     
-    grid.innerHTML = plants.map(plant => {
+    // 分离普通植物和特殊植物
+    const normalPlants = plants.filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1);
+    const specialPlants = plants.filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) !== -1);
+    
+    // 生成植物卡片 HTML
+    const plantCard = (plant) => {
         const growTime = calcGrowTime(plant.name, landType);
         const totalTime = calcTotalGrowTime(plant.name, landType);
         const seasonsInfo = plant.seasons > 1 ? `${plant.seasons}季·总${totalTime}h` : '单季';
@@ -127,7 +136,18 @@ function renderPlantGrid(filter = '') {
                 <div class="plant-profit"><span class="coin">💰${plant.sellPrice}</span></div>
             </div>
         `;
-    }).join('');
+    };
+    
+    let html = '';
+    // 普通植物
+    normalPlants.forEach(plant => { html += plantCard(plant); });
+    // 特殊植物表头（仅当存在特殊植物时）
+    if (specialPlants.length > 0) {
+        html += `<div class="plant-section-title" style="grid-column:1/-1; text-align:center; font-weight:bold; margin:12px 0 4px; color:var(--text-primary);">🌱 活动植物：</div>`;
+        specialPlants.forEach(plant => { html += plantCard(plant); });
+    }
+    
+    grid.innerHTML = html;
 }
 
 function filterPlants(keyword) {
