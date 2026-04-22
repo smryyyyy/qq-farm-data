@@ -1,5 +1,5 @@
 /* ============================================
-   QQ农场计时器 - 样式
+   QQ农场计时器 - 样式（已修正效率页面布局）
    ============================================ */
 
 /* === 基础变量 === */
@@ -2267,7 +2267,7 @@ body {
     transform: scale(0.95);
 }
 
-/* === 分析页面样式 === */
+/* === 分析页面样式（已修正布局和省略号问题） === */
 .farm-level-selector {
     margin: 16px 0;
 }
@@ -2462,9 +2462,10 @@ body {
     background: rgba(255, 255, 255, 0.3);
 }
 
+/* 修改分析卡片布局：移除 emoji 列，改为排名、植物信息、统计 */
 .analysis-plant-card {
     display: grid;
-    grid-template-columns: 32px 32px 1fr auto;
+    grid-template-columns: 32px 1fr auto;
     gap: 10px;
     align-items: center;
     padding: 12px;
@@ -2490,24 +2491,21 @@ body {
     min-width: 32px;
 }
 
-.analysis-plant-emoji {
-    font-size: 28px;
-    text-align: center;
-}
+/* 移除 analysis-plant-emoji 相关样式（不再使用） */
 
 .analysis-plant-info {
     flex: 1;
-    min-width: 0;
+    min-width: 0; /* 防止溢出 */
 }
 
+/* 植物名称：允许换行，不截断 */
 .analysis-plant-name {
     font-size: 14px;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 2px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    word-break: break-word;
+    line-height: 1.3;
 }
 
 .plant-seasons {
@@ -2522,14 +2520,21 @@ body {
     vertical-align: middle;
 }
 
+/* 时间显示：允许换行，设置合适最大宽度 */
 .analysis-plant-time {
     font-size: 12px;
     color: var(--text-secondary);
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.4;
+    max-width: 130px;
 }
 
+/* 收益和经验区域，靠右对齐 */
 .analysis-plant-stats {
     display: flex;
     gap: 12px;
+    flex-shrink: 0;
 }
 
 .stat-item {
@@ -2562,7 +2567,7 @@ body {
 /* 移动端适配 */
 @media (max-width: 480px) {
     .analysis-plant-card {
-        grid-template-columns: 28px 28px 1fr;
+        grid-template-columns: 28px 1fr auto;
         gap: 8px;
         padding: 10px;
     }
@@ -2572,18 +2577,17 @@ body {
         min-width: 28px;
     }
 
-    .analysis-plant-emoji {
-        font-size: 24px;
-    }
-
     .analysis-plant-name {
         font-size: 13px;
     }
 
+    .analysis-plant-time {
+        font-size: 11px;
+        max-width: 110px;
+    }
+
     .analysis-plant-stats {
-        grid-column: 2 / -1;
         gap: 10px;
-        margin-top: 6px;
     }
 
     .stat-item {
