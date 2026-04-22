@@ -50,11 +50,13 @@
                         <button class="land-btn" data-land="normal" onclick="selectLand('normal')">🟫 普通</button>
                         <button class="land-btn" data-land="red" onclick="selectLand('red')">🔴 红土</button>
                         <button class="land-btn" data-land="black" onclick="selectLand('black')">⬛ 黑土</button>
-                        <button class="land-btn active" data-land="gold" onclick="selectLand('gold')">🟡 金土</button>
+                        <button class="land-btn" data-land="gold" onclick="selectLand('gold')">🟡 金土</button>
+                        <button class="land-btn" data-land="purple" onclick="selectLand('purple')">🟣 紫土</button>
                     </div>
                 </div>
                 <div class="land-info" id="land-info">
-                    <span class="land-bonus" id="land-bonus-text">增产+28% · 成熟时间-20%</span>
+                    <span class="land-bonus" id="land-bonus-text">增产+0% · 成熟时间0%</span>
+                    <div class="land-detail" id="land-detail-text" style="font-size:12px; color:var(--text-muted); margin-top:4px;"></div>
                 </div>
                 <div class="plant-search">
                     <input type="text" id="plant-search-input" placeholder="🔍 搜索植物名称..." oninput="filterPlants(this.value)">
@@ -95,6 +97,7 @@
                             <button class="land-btn" data-land="red" onclick="selectAnalysisLand('red')">🔴 红土</button>
                             <button class="land-btn" data-land="black" onclick="selectAnalysisLand('black')">⬛ 黑土</button>
                             <button class="land-btn" data-land="gold" onclick="selectAnalysisLand('gold')">🟡 金土</button>
+                            <button class="land-btn" data-land="purple" onclick="selectAnalysisLand('purple')">🟣 紫土</button>
                         </div>
                     </div>
                     <div class="control-group">
@@ -137,17 +140,17 @@
                     <div class="help-section">
                         <h3>💰 每小时收益/经验</h3>
                         <p><strong>每小时收益</strong>：作物每小时的利润。利润 = 售价 - 种子成本。</p>
-                        <p><strong>每小时经验</strong>：作物每小时获得的经验值。</p>
+                        <p><strong>每小时经验</strong>：作物每小时获得的经验值（含土地经验加成）。</p>
                         <p class="formula">每小时收益 = (售价 - 种子成本) × 季数 ÷ 总成熟时间</p>
-                        <p class="formula">每小时经验 = 经验 × 季数 ÷ 总成熟时间</p>
+                        <p class="formula">每小时经验 = 基础经验 × (1+经验加成) × 季数 ÷ 总成熟时间</p>
                     </div>
                     <div class="help-divider"></div>
                     <div class="help-section">
                         <h3>📈 总收益/经验</h3>
                         <p><strong>总收益</strong>：全部收获后的总利润。</p>
-                        <p><strong>总经验</strong>：全部收获后的总经验。</p>
+                        <p><strong>总经验</strong>：全部收获后的总经验（含土地加成）。</p>
                         <p class="formula">总收益 = (售价 - 种子成本) × 季数</p>
-                        <p class="formula">总经验 = 经验 × 季数</p>
+                        <p class="formula">总经验 = 基础经验 × (1+经验加成) × 季数</p>
                     </div>
                     <div class="help-divider"></div>
                     <div class="help-section">
@@ -160,9 +163,10 @@
                         <h3>💡 土地加成</h3>
                         <ul>
                             <li><strong>🟫 普通土地</strong>：无加成</li>
-                            <li><strong>🔴 红土地</strong>：增产+10%</li>
-                            <li><strong>⬛ 黑土地</strong>：增产+20% · 成熟时间-20%</li>
-                            <li><strong>🟡 金土地</strong>：增产+28% · 成熟时间-20%</li>
+                            <li><strong>🔴 红土地</strong>：增产+100%</li>
+                            <li><strong>⬛ 黑土地</strong>：增产+200% · 成熟时间-20%</li>
+                            <li><strong>🟡 金土地</strong>：增产+300% · 成熟时间-20% · 经验+20%</li>
+                            <li><strong>🟣 紫土地</strong>：增产+300% · 成熟时间-20% · 经验+25%</li>
                         </ul>
                     </div>
                 </div>

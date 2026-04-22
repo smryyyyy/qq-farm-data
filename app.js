@@ -1,8 +1,7 @@
 // ============================================
 // QQ农场计时器 - 主应用逻辑（精简版）
-// 仅保留：种植网格、土地选择、效率分析、分享、Toast提示、版本更新
-// 效率分析默认等级为1，不记忆上次等级
-// 种植确认后无提示，弹窗只保留确认按钮
+// 支持红、黑、金、紫土地完整加成（增产、加速、经验）
+// 默认等级1，不记忆等级
 // ============================================
 
 // ========== 全局状态 ==========
@@ -17,12 +16,10 @@ document.addEventListener('DOMContentLoaded', () => {
     selectLand(state.selectedLand);
     updateStickyOffsets();
 
-    // 效率分析初始化：等级固定为1，不读取存储
     const farmLevelInput = document.getElementById('farm-level-input');
     if (farmLevelInput) {
         farmLevelInput.value = 1;
     }
-    // 重置分析状态等级为1
     analysisState.farmLevel = 1;
     selectAnalysisLand(analysisState.selectedLand);
 
@@ -54,7 +51,7 @@ function switchTab(tabName) {
     requestAnimationFrame(updateStickyOffsets);
 }
 
-// ========== 土地类型选择 ==========
+// ========== 土地类型选择（种植页） ==========
 function selectLand(landType) {
     state.selectedLand = landType;
     const land = LAND_TYPES[landType];
@@ -63,13 +60,19 @@ function selectLand(landType) {
         btn.classList.toggle('active', btn.dataset.land === landType);
     });
     
+    // 更新加成文本（简短）
     const bonusText = document.getElementById('land-bonus-text');
-    if (land.timeBonus > 0) {
-        bonusText.textContent = `增产+${Math.round(land.yieldBonus * 100)}% · 成熟时间-${Math.round(land.timeBonus * 100)}%`;
-    } else if (land.yieldBonus > 0) {
-        bonusText.textContent = `增产+${Math.round(land.yieldBonus * 100)}% · 成熟时间无缩短`;
-    } else {
-        bonusText.textContent = '增产+0% · 成熟时间无缩短';
+    let bonusStr = '';
+    if (land.yieldBonus > 0) bonusStr += `增产+${Math.round(land.yieldBonus*100)}% `;
+    if (land.timeBonus > 0) bonusStr += `· 成熟-${Math.round(land.timeBonus*100)}%`;
+    if (land.expBonus > 0) bonusStr += ` · 经验+${Math.round(land.expBonus*100)}%`;
+    if (bonusStr === '') bonusStr = '无加成';
+    bonusText.textContent = bonusStr;
+    
+    // 更新详细信息（解锁等级）
+    const detailText = document.getElementById('land-detail-text');
+    if (detailText) {
+        detailText.textContent = `解锁等级 Lv.${land.level}`;
     }
     
     renderPlantGrid(document.getElementById('plant-search-input').value);
@@ -177,21 +180,20 @@ function startPlantTimer(plantName, optionalLandType) {
     
     const yieldBonus = land.yieldBonus > 0 ? `<span>📈 ${land.emoji}增产+${Math.round(land.yieldBonus*100)}%</span>` : '';
     const timeBonus = land.timeBonus > 0 ? `<span>⏱️ 成熟-${Math.round(land.timeBonus*100)}%</span>` : '';
+    const expBonus = land.expBonus > 0 ? `<span>✨ 经验+${Math.round(land.expBonus*100)}%</span>` : '';
     
     showConfirm(
         `${plant.emoji} 种植信息`,
         `在 <strong>${land.emoji} ${land.name}</strong> 上种植 <strong>${plant.name}</strong><br>
         首季成熟：<strong>${growTime}小时</strong><br>
-        <small>💰 收入 ${plant.sellPrice} · ⭐ 经验 +${plant.exp} · ${plant.seasons}季作物</small>
-        ${yieldBonus}${timeBonus}
+        <small>💰 收入 ${Math.round(plant.sellPrice * (1+land.yieldBonus))} · ⭐ 经验 +${Math.round(plant.exp * (1+land.expBonus))} · ${plant.seasons}季作物</small>
+        ${yieldBonus}${timeBonus}${expBonus}
         ${seasonsInfo}`,
-        () => {
-            // 确认后不做任何操作
-        }
+        () => {}
     );
 }
 
-// ========== 分析页面（默认等级1，不记忆） ==========
+// ========== 分析页面（支持经验加成） ==========
 let analysisState = {
     farmLevel: 1,
     selectedLand: 'gold',
@@ -241,7 +243,11 @@ function calculateEfficiency() {
             const sellPrice = Math.round(plant.sellPrice * (1 + land.yieldBonus));
             const profit = sellPrice - plant.seedPrice;
             const totalProfit = profit * plant.seasons;
-            const totalExp = plant.exp * plant.seasons;
+            // 经验受土地经验加成
+            const expPerSeason = Math.round(plant.exp * (1 + land.expBonus));
+            const totalExp = expPerSeason * plant.seasons;
+            const incomePerHour = totalTime > 0 ? totalProfit / totalTime : 0;
+            const expPerHour = totalTime > 0 ? totalExp / totalTime : 0;
             return {
                 ...plant,
                 growTime,
@@ -250,8 +256,8 @@ function calculateEfficiency() {
                 profit,
                 totalProfit,
                 totalExp,
-                incomePerHour: totalTime > 0 ? totalProfit / totalTime : 0,
-                expPerHour: totalTime > 0 ? totalExp / totalTime : 0
+                incomePerHour,
+                expPerHour
             };
         });
     analysisState.results = plants;
@@ -371,7 +377,7 @@ function showConfirm(title, message, onConfirm) {
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 }
 
-// ========== Service Worker（仅缓存与版本更新） ==========
+// ========== Service Worker ==========
 function initServiceWorker() {
     if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {

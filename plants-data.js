@@ -1,14 +1,23 @@
 // ============================================
 // QQ农场经典 - 植物数据库 & 土地类型
-// 仅保留数据定义和必要的计算函数，移除自定义植物管理
+// 土地加成已按最新要求调整：
+// 普通:0%增产,0%加速,0%经验
+// 红土:+100%增产,0%加速,0%经验
+// 黑土:+200%增产,-20%加速,0%经验
+// 金土:+300%增产,-20%加速,+20%经验
+// 紫土:+300%增产,-20%加速,+25%经验,解锁等级90
 // ============================================
 
 const LAND_TYPES = {
     normal: { id: "normal", name: "普通土地", emoji: "🟫", level: 0, yieldBonus: 0, timeBonus: 0, expBonus: 0 },
-    red:    { id: "red",    name: "红土地",   emoji: "🔴", level: 28, yieldBonus: 0.10, timeBonus: 0, expBonus: 0 },
-    black:  { id: "black",  name: "黑土地",   emoji: "⬛", level: 40, yieldBonus: 0.20, timeBonus: 0.20, expBonus: 0 },
-    gold:   { id: "gold",   name: "金土地",   emoji: "🟡", level: 58, yieldBonus: 0.28, timeBonus: 0.20, expBonus: 0.28 }
+    red:    { id: "red",    name: "红土地",   emoji: "🔴", level: 28, yieldBonus: 1.00, timeBonus: 0, expBonus: 0 },
+    black:  { id: "black",  name: "黑土地",   emoji: "⬛", level: 40, yieldBonus: 2.00, timeBonus: 0.20, expBonus: 0 },
+    gold:   { id: "gold",   name: "金土地",   emoji: "🟡", level: 58, yieldBonus: 3.00, timeBonus: 0.20, expBonus: 0.20 },
+    purple: { id: "purple", name: "紫土地",   emoji: "🟣", level: 90, yieldBonus: 3.00, timeBonus: 0.20, expBonus: 0.25 }
 };
+
+// PLANTS_DATABASE 保持不变（与之前完全相同，此处省略重复内容）
+
 
 const PLANTS_DATABASE = {
     "白萝卜": { name: "白萝卜", emoji: "🥬", level: 1, seedPrice: 1, sellPrice: 10, exp: 1, firstTime: 0.02, reTime: 0, seasons: 1, land: "any", category: "蔬菜" },
@@ -175,7 +184,7 @@ function calcTotalGrowTime(plantName, landType) {
 
 function canPlantOnLand(plant, landType) {
     if (plant.land === "any") return true;
-    const order = ["normal", "red", "black", "gold"];
+    const order = ["normal", "red", "black", "gold", "purple"];
     return order.indexOf(landType) >= order.indexOf(plant.land);
 }
 
