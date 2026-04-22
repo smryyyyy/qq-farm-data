@@ -2,6 +2,7 @@
 // QQ农场计时器 - 主应用逻辑（纯 Web 版本，无 PWA）
 // 支持红、黑、金、紫土地完整加成（增产、加速、经验）
 // 默认等级1，不记忆等级
+// 植物排序：特殊植物（新春红包等）在最后，其余按等级升序
 // ============================================
 
 // ========== 全局状态 ==========
@@ -76,42 +77,26 @@ function selectLand(landType) {
 }
 
 // ========== 植物排序 ==========
+// 特殊植物列表（强制排在最后）
 const SPECIAL_PLANT_LAST_ORDER = ['新春红包', '哈哈南瓜', '爱心果', '蔷薇', '蝴蝶兰'];
-const SHOP_PLANT_ORDER = [
-    '白萝卜', '胡萝卜', '大白菜', '大蒜', '大葱', '水稻', '小麦', '玉米', '鲜姜', '土豆',
-    '小白菜', '生菜', '油菜', '茄子', '红枣', '蒲公英', '银莲花', '番茄', '花菜', '韭菜',
-    '小雏菊', '豌豆', '莲藕', '红玫瑰', '秋菊（黄色）', '满天星', '含羞草', '牵牛花',
-    '秋菊（红色）', '辣椒', '黄瓜', '芹菜', '天香百合', '南瓜', '核桃', '山楂', '菠菜',
-    '草莓', '苹果', '四叶草', '非洲菊', '火绒草', '花香根鸢尾', '虞美人', '向日葵',
-    '西瓜', '黄豆', '香蕉', '竹笋', '桃子', '甘蔗', '橙子', '茉莉花', '葡萄', '丝瓜',
-    '榛子', '迎春花', '石榴', '栗子', '柚子', '蘑菇', '菠萝', '箬竹', '无花果', '椰子',
-    '花生', '金针菇', '葫芦', '猕猴桃', '梨', '爱心果', '睡莲', '火龙果', '枇杷', '樱桃',
-    '李子', '荔枝', '香瓜', '木瓜', '桂圆', '月柿', '杨桃', '蔷薇', '蝴蝶兰', '哈密瓜',
-    '桑葚', '柠檬', '芒果', '杨梅', '榴莲', '番石榴', '瓶子树', '蓝莓', '猪笼草', '山竹',
-    '曼陀罗华', '曼珠沙华', '苦瓜', '天堂鸟', '冬瓜', '豹皮花', '杏子', '金桔'
-];
 
 function comparePlantsForUI(a, b) {
-    const specialA = SPECIAL_PLANT_LAST_ORDER.indexOf(a.name);
-    const specialB = SPECIAL_PLANT_LAST_ORDER.indexOf(b.name);
-    const aIsSpecial = specialA !== -1;
-    const bIsSpecial = specialB !== -1;
+    // 检查是否为特殊植物
+    const aSpecialIndex = SPECIAL_PLANT_LAST_ORDER.indexOf(a.name);
+    const bSpecialIndex = SPECIAL_PLANT_LAST_ORDER.indexOf(b.name);
+    const aIsSpecial = aSpecialIndex !== -1;
+    const bIsSpecial = bSpecialIndex !== -1;
 
+    // 特殊植物排在最后，并按列表顺序排序
     if (aIsSpecial && !bIsSpecial) return 1;
     if (!aIsSpecial && bIsSpecial) return -1;
-    if (aIsSpecial && bIsSpecial) return specialA - specialB;
+    if (aIsSpecial && bIsSpecial) return aSpecialIndex - bSpecialIndex;
 
-    const shopA = SHOP_PLANT_ORDER.indexOf(a.name);
-    const shopB = SHOP_PLANT_ORDER.indexOf(b.name);
-    const aInShop = shopA !== -1;
-    const bInShop = shopB !== -1;
-
-    if (aInShop && bInShop) return shopA - shopB;
-    if (aInShop && !bInShop) return -1;
-    if (!aInShop && bInShop) return 1;
-
-    if ((a.level || 0) !== (b.level || 0)) return (a.level || 0) - (b.level || 0);
-    return (a.name || '').localeCompare(b.name || '', 'zh-CN');
+    // 普通植物按等级升序（低等级在前）
+    if (a.level !== b.level) return a.level - b.level;
+    
+    // 等级相同按名称排序
+    return a.name.localeCompare(b.name, 'zh-CN');
 }
 
 // ========== 植物网格 ==========
