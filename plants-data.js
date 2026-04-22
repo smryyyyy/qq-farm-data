@@ -6,6 +6,7 @@
 // 黑土:+200%增产,-20%加速,0%经验
 // 金土:+300%增产,-20%加速,+20%经验
 // 紫土:+300%增产,-20%加速,+25%经验,解锁等级90
+// 取消土地限定：所有植物可在任何土地上种植
 // ============================================
 
 const LAND_TYPES = {
@@ -16,7 +17,8 @@ const LAND_TYPES = {
     purple: { id: "purple", name: "紫土地",   emoji: "🟣", level: 90, yieldBonus: 3.00, timeBonus: 0.20, expBonus: 0.25 }
 };
 
-// PLANTS_DATABASE 保持不变（与之前完全相同，此处省略重复内容）
+// 注意：此处应包含完整的 PLANTS_DATABASE 对象（与之前相同），因篇幅省略
+// 实际使用时请将原有完整数据粘贴在此处
 
 
 const PLANTS_DATABASE = {
@@ -151,7 +153,8 @@ const PLANTS_DATABASE = {
     "似血杜鹃": { name: "似血杜鹃", emoji: "🌺", level: 140, seedPrice: 28080, sellPrice: 140400, exp: 5202, firstTime: 24, reTime: 24, seasons: 2, land: "red", category: "红土作物" }
 };
 
-// ========== 数据规范化（补全缺失的 reTime） ==========
+
+// ========== 数据规范化 ==========
 function normalizePlantRecord(plant) {
     if (!plant) return plant;
     if (plant.seasons > 1 && (!plant.reTime || plant.reTime === 0)) {
@@ -182,10 +185,9 @@ function calcTotalGrowTime(plantName, landType) {
     return Math.round(total * 10) / 10;
 }
 
+// 取消土地限定：所有植物可在所有土地上种植
 function canPlantOnLand(plant, landType) {
-    if (plant.land === "any") return true;
-    const order = ["normal", "red", "black", "gold", "purple"];
-    return order.indexOf(landType) >= order.indexOf(plant.land);
+    return true;
 }
 
 function getSeasonTimes(plantName, landType) {
@@ -199,9 +201,9 @@ function getSeasonTimes(plantName, landType) {
 }
 
 function searchPlants(keyword, landType = "normal") {
-    if (!keyword) return Object.values(PLANTS_DATABASE).filter(p => canPlantOnLand(p, landType));
+    if (!keyword) return Object.values(PLANTS_DATABASE); // 不过滤土地
     const kw = keyword.toLowerCase();
     return Object.values(PLANTS_DATABASE).filter(p =>
-        (p.name.toLowerCase().includes(kw) || p.emoji.includes(kw)) && canPlantOnLand(p, landType)
+        p.name.toLowerCase().includes(kw) || p.emoji.includes(kw)
     );
 }
