@@ -1,5 +1,5 @@
 // ============================================
-// QQ农场计时器 - 主应用逻辑（精简版）
+// QQ农场计时器 - 主应用逻辑（纯 Web 版本，无 PWA）
 // 支持红、黑、金、紫土地完整加成（增产、加速、经验）
 // 默认等级1，不记忆等级
 // ============================================
@@ -12,7 +12,6 @@ let state = {
 // ========== 初始化 ==========
 document.addEventListener('DOMContentLoaded', () => {
     renderPlantGrid();
-    initServiceWorker();
     selectLand(state.selectedLand);
     updateStickyOffsets();
 
@@ -60,7 +59,6 @@ function selectLand(landType) {
         btn.classList.toggle('active', btn.dataset.land === landType);
     });
     
-    // 更新加成文本（简短）
     const bonusText = document.getElementById('land-bonus-text');
     let bonusStr = '';
     if (land.yieldBonus > 0) bonusStr += `增产+${Math.round(land.yieldBonus*100)}% `;
@@ -69,7 +67,6 @@ function selectLand(landType) {
     if (bonusStr === '') bonusStr = '无加成';
     bonusText.textContent = bonusStr;
     
-    // 更新详细信息（解锁等级）
     const detailText = document.getElementById('land-detail-text');
     if (detailText) {
         detailText.textContent = `解锁等级 Lv.${land.level}`;
@@ -243,7 +240,6 @@ function calculateEfficiency() {
             const sellPrice = Math.round(plant.sellPrice * (1 + land.yieldBonus));
             const profit = sellPrice - plant.seedPrice;
             const totalProfit = profit * plant.seasons;
-            // 经验受土地经验加成
             const expPerSeason = Math.round(plant.exp * (1 + land.expBonus));
             const totalExp = expPerSeason * plant.seasons;
             const incomePerHour = totalTime > 0 ? totalProfit / totalTime : 0;
@@ -376,20 +372,3 @@ function showConfirm(title, message, onConfirm) {
     };
     overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 }
-
-// ========== Service Worker ==========
-function initServiceWorker() {
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('./sw.js').catch(e => console.warn('SW注册失败', e));
-        });
-    }
-}
-
-function refreshApp() {
-    if (navigator.serviceWorker.controller) {
-        navigator.serviceWorker.controller.postMessage({ type: 'SKIP_WAITING' });
-    }
-    setTimeout(() => location.reload(), 500);
-}
-function dismissUpdateToast() { document.getElementById('update-toast')?.remove(); }

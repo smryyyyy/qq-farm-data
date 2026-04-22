@@ -7,14 +7,7 @@
     <meta name="description" content="QQ农场计时器，植物种植、效率分析，支持土地加成与等级解锁。">
     <meta name="application-name" content="QQ农场计时器">
     <meta name="theme-color" content="#4CAF50">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-title" content="QQ农场计时器">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="stylesheet" href="style.css">
-    <link rel="manifest" href="manifest.webmanifest">
-    <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32-v2.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-180-v2.png">
 </head>
 <body>
     <div id="app">
@@ -122,16 +115,6 @@
             </div>
         </section>
 
-        <!-- 版本更新提示 -->
-        <div class="toast toast-update" id="update-toast" style="display:none;">
-            <div class="toast-content">
-                <span class="toast-icon">🆕</span>
-                <span class="toast-message">发现新版本，点击刷新获取最新功能</span>
-                <button class="toast-action" onclick="refreshApp()">刷新</button>
-            </div>
-            <button class="toast-close" onclick="dismissUpdateToast()">✕</button>
-        </div>
-
         <!-- 分析帮助弹窗 -->
         <div class="modal-overlay" id="analysis-help-modal" style="display:none;">
             <div class="modal help-modal">
@@ -168,7 +151,6 @@
                             <li><strong>🟡 金土地</strong>：增产+300% · 成熟时间-20% · 经验+20%</li>
                             <li><strong>🟣 紫土地</strong>：增产+300% · 成熟时间-20% · 经验+25%</li>
                         </ul>
-                        <p>所有植物可在任意土地上种植，不受土地类型限制。</p>
                     </div>
                 </div>
                 <button class="primary-btn" onclick="closeAnalysisHelp()">知道了</button>
