@@ -7,6 +7,7 @@
 // 切换标签页自动滚动到顶部，已移除所有植物 emoji
 // 效率页面已删除“2季”等季数标签，且排除特殊植物
 // 土地加成和解锁等级文案均为白色加粗
+// 两季植物时间显示格式：第一季h · 第二季h = 总时间h
 // ============================================
 
 // ========== 全局状态 ==========
@@ -72,7 +73,6 @@ function selectLand(landType) {
     if (land.expBonus > 0) bonusStr += ` · 经验+${Math.round(land.expBonus*100)}%`;
     if (bonusStr === '') bonusStr = '无加成';
     bonusText.textContent = bonusStr;
-    // 设置土地加成文案为白色加粗
     bonusText.style.color = 'white';
     bonusText.style.fontWeight = 'bold';
     
@@ -207,7 +207,6 @@ function updateFarmLevel(level) {
         const unlocked = Object.values(PLANTS_DATABASE).filter(p => p.level <= level && SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1).length;
         const total = Object.values(PLANTS_DATABASE).filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1).length;
         hint.textContent = `已解锁 ${unlocked}/${total} 种植物`;
-        // 提示文本已在 HTML 中内联白色加粗，无需额外设置
     }
     calculateEfficiency();
 }
@@ -235,7 +234,7 @@ function calculateEfficiency() {
     const plants = Object.values(PLANTS_DATABASE)
         .filter(p => p.level <= analysisState.farmLevel)
         .filter(p => canPlantOnLand(p, analysisState.selectedLand))
-        .filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1) // 排除特殊植物
+        .filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1)
         .map(plant => {
             const growTime = calcGrowTime(plant.name, analysisState.selectedLand);
             const totalTime = calcTotalGrowTime(plant.name, analysisState.selectedLand);
@@ -296,9 +295,10 @@ function renderAnalysisResults(results) {
         if (plant.seasons > 1) {
             const seasonTimes = getSeasonTimes(plant.name, analysisState.selectedLand);
             if (seasonTimes.length >= 2) {
-                timeDisplay = `${seasonTimes[0]}h · ${seasonTimes[1]}h`;
+                // 格式：第一季 · 第二季 = 总时间
+                timeDisplay = `${seasonTimes[0]}h · ${seasonTimes[1]}h = ${plant.totalTime}h`;
             } else {
-                timeDisplay = `${plant.growTime}h · ${plant.totalTime - plant.growTime}h`;
+                timeDisplay = `${plant.growTime}h · ${plant.totalTime - plant.growTime}h = ${plant.totalTime}h`;
             }
         }
         return `
