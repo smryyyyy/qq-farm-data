@@ -6,8 +6,9 @@
 // 特殊植物前显示“活动植物：”标题
 // 切换标签页自动滚动到顶部，已移除所有植物 emoji
 // 效率页面已删除“2季”等季数标签，且排除特殊植物
-// 土地加成和解锁等级文案均为白色加粗
-// 两季植物时间显示格式：第一季h · 第二季h = 总时间h
+// 土地加成和解锁等级文案均为黑色
+// 修复种植信息弹窗标题 undefined 错误
+// 等级上限提升至 201 级
 // ============================================
 
 // ========== 全局状态 ==========
@@ -73,13 +74,13 @@ function selectLand(landType) {
     if (land.expBonus > 0) bonusStr += ` · 经验+${Math.round(land.expBonus*100)}%`;
     if (bonusStr === '') bonusStr = '无加成';
     bonusText.textContent = bonusStr;
-    bonusText.style.color = 'white';
+    bonusText.style.color = 'black';
     bonusText.style.fontWeight = 'bold';
     
     const detailText = document.getElementById('land-detail-text');
     if (detailText) {
         detailText.textContent = `解锁等级 Lv.${land.level}`;
-        detailText.style.color = 'white';
+        detailText.style.color = 'black';
         detailText.style.fontWeight = 'bold';
     }
     
@@ -148,7 +149,7 @@ function filterPlants(keyword) {
     renderPlantGrid(keyword);
 }
 
-// ========== 种植确认弹窗（仅确认按钮） ==========
+// ========== 种植确认弹窗（仅确认按钮，修复标题 undefined） ==========
 function startPlantTimer(plantName, optionalLandType) {
     const plant = PLANTS_DATABASE[plantName];
     if (!plant) {
@@ -179,7 +180,7 @@ function startPlantTimer(plantName, optionalLandType) {
     const expBonus = land.expBonus > 0 ? `<span>✨ 经验+${Math.round(land.expBonus*100)}%</span>` : '';
     
     showConfirm(
-        `${plant.emoji} 种植信息`,
+        `🌱 种植信息`,
         `在 <strong>${land.emoji} ${land.name}</strong> 上种植 <strong>${plant.name}</strong><br>
         首季成熟：<strong>${growTime}小时</strong><br>
         <small>💰 收入 ${Math.round(plant.sellPrice * (1+land.yieldBonus))} · ⭐ 经验 +${Math.round(plant.exp * (1+land.expBonus))} · ${plant.seasons}季作物</small>
@@ -189,7 +190,7 @@ function startPlantTimer(plantName, optionalLandType) {
     );
 }
 
-// ========== 分析页面（支持经验加成，已删除季数标签，排除特殊植物） ==========
+// ========== 分析页面（等级上限提升至 201） ==========
 let analysisState = {
     farmLevel: 1,
     selectedLand: 'gold',
@@ -199,7 +200,7 @@ let analysisState = {
 function updateFarmLevel(level) {
     level = parseInt(level);
     if (isNaN(level)) level = 1;
-    level = Math.min(140, Math.max(1, level));
+    level = Math.min(201, Math.max(1, level));  // 上限改为 201
     analysisState.farmLevel = level;
     
     const hint = document.getElementById('plant-count-hint');
@@ -215,7 +216,7 @@ function adjustLevel(delta) {
     const input = document.getElementById('farm-level-input');
     let level = parseInt(input.value) || 1;
     level += delta;
-    level = Math.min(140, Math.max(1, level));
+    level = Math.min(201, Math.max(1, level));  // 上限改为 201
     input.value = level;
     updateFarmLevel(level);
 }
@@ -295,7 +296,6 @@ function renderAnalysisResults(results) {
         if (plant.seasons > 1) {
             const seasonTimes = getSeasonTimes(plant.name, analysisState.selectedLand);
             if (seasonTimes.length >= 2) {
-                // 格式：第一季 · 第二季 = 总时间
                 timeDisplay = `${seasonTimes[0]}h · ${seasonTimes[1]}h = ${plant.totalTime}h`;
             } else {
                 timeDisplay = `${plant.growTime}h · ${plant.totalTime - plant.growTime}h = ${plant.totalTime}h`;
