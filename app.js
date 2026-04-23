@@ -6,7 +6,7 @@
 // 特殊植物前显示“活动植物：”标题
 // 切换标签页自动滚动到顶部，已移除所有植物 emoji
 // 效率页面已删除“2季”等季数标签，且排除特殊植物
-// 土地加成和解锁等级文案均为黑色
+// 土地加成和解锁等级文案均为红色加粗
 // 修复种植信息弹窗标题 undefined 错误
 // 等级上限提升至 201 级
 // ============================================
@@ -74,13 +74,14 @@ function selectLand(landType) {
     if (land.expBonus > 0) bonusStr += ` · 经验+${Math.round(land.expBonus*100)}%`;
     if (bonusStr === '') bonusStr = '无加成';
     bonusText.textContent = bonusStr;
-    bonusText.style.color = 'black';
+    // 设置为红色加粗
+    bonusText.style.color = 'red';
     bonusText.style.fontWeight = 'bold';
     
     const detailText = document.getElementById('land-detail-text');
     if (detailText) {
         detailText.textContent = `解锁等级 Lv.${land.level}`;
-        detailText.style.color = 'black';
+        detailText.style.color = 'red';
         detailText.style.fontWeight = 'bold';
     }
     
@@ -200,7 +201,7 @@ let analysisState = {
 function updateFarmLevel(level) {
     level = parseInt(level);
     if (isNaN(level)) level = 1;
-    level = Math.min(201, Math.max(1, level));  // 上限改为 201
+    level = Math.min(201, Math.max(1, level));
     analysisState.farmLevel = level;
     
     const hint = document.getElementById('plant-count-hint');
@@ -216,7 +217,7 @@ function adjustLevel(delta) {
     const input = document.getElementById('farm-level-input');
     let level = parseInt(input.value) || 1;
     level += delta;
-    level = Math.min(201, Math.max(1, level));  // 上限改为 201
+    level = Math.min(201, Math.max(1, level));
     input.value = level;
     updateFarmLevel(level);
 }
