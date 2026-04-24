@@ -329,7 +329,7 @@ function closeAnalysisHelp() {
 
 // ========== 分享 ==========
 async function handleShare() {
-    const shareText = '🌾 QQ农场计时器 - 超好用的农场植物计时工具，再也不用错过收菜时间了！\n\nhttps://sweetyrimo.github.io/qq-farm-timer/';
+    const shareText = '🌾 QQ经典农场植物图鉴 - 超好用的农场植物图鉴工具，再也不用错过收菜时间了！\n\nhttps://farmqq.vpnguaibao.top';
     try {
         await navigator.clipboard.writeText(shareText);
         showToast('✅ 已复制到剪贴板');
