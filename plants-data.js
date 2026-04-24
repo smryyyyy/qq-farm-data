@@ -1,8 +1,8 @@
 // ============================================
-// QQ农场经典 - 植物数据库（修正版）
-// 已按要求：移除emoji、统一land为"any"、删除category
-// 种子价格除白萝卜外均翻倍，两季作物总售价翻倍
-// 名称修改：宝华玉兰→莴笋，菠萝蜜→晚香玉
+// QQ农场经典 - 植物数据库（基于最新数据）
+// 数据来源：419g.com 作物查询接口（2026-04-23）
+// 包含单季和双季植物共 200+ 种，所有数值为最终值
+// 已移除 emoji、category 字段，land 统一为 "any"
 // ============================================
 
 const LAND_TYPES = {
@@ -14,17 +14,18 @@ const LAND_TYPES = {
 };
 
 const PLANTS_DATABASE = {
-    "白萝卜": { name: "白萝卜", level: 1, seedPrice: 1, sellPrice: 10, exp: 1, firstTime: 0.02, reTime: 0, seasons: 1, land: "any" },
-    "胡萝卜": { name: "胡萝卜", level: 2, seedPrice: 4, sellPrice: 20, exp: 2, firstTime: 0.03, reTime: 0, seasons: 1, land: "any" },
-    "大白菜": { name: "大白菜", level: 3, seedPrice: 10, sellPrice: 40, exp: 5, firstTime: 0.08, reTime: 0, seasons: 1, land: "any" },
-    "大蒜": { name: "大蒜", level: 4, seedPrice: 20, sellPrice: 100, exp: 10, firstTime: 0.17, reTime: 0, seasons: 1, land: "any" },
-    "大葱": { name: "大葱", level: 5, seedPrice: 42, sellPrice: 210, exp: 20, firstTime: 0.33, reTime: 0, seasons: 1, land: "any" },
-    "水稻": { name: "水稻", level: 6, seedPrice: 84, sellPrice: 420, exp: 41, firstTime: 0.67, reTime: 0, seasons: 1, land: "any" },
+    // ========== 单季植物 ==========
+    "白萝卜": { name: "白萝卜", level: 1, seedPrice: 2, sellPrice: 10, exp: 1, firstTime: 1/60, reTime: 0, seasons: 1, land: "any" },
+    "胡萝卜": { name: "胡萝卜", level: 2, seedPrice: 4, sellPrice: 20, exp: 2, firstTime: 2/60, reTime: 0, seasons: 1, land: "any" },
+    "大白菜": { name: "大白菜", level: 3, seedPrice: 10, sellPrice: 40, exp: 5, firstTime: 5/60, reTime: 0, seasons: 1, land: "any" },
+    "大蒜": { name: "大蒜", level: 4, seedPrice: 20, sellPrice: 100, exp: 10, firstTime: 10/60, reTime: 0, seasons: 1, land: "any" },
+    "大葱": { name: "大葱", level: 5, seedPrice: 42, sellPrice: 210, exp: 20, firstTime: 20/60, reTime: 0, seasons: 1, land: "any" },
+    "水稻": { name: "水稻", level: 6, seedPrice: 84, sellPrice: 420, exp: 41, firstTime: 40/60, reTime: 0, seasons: 1, land: "any" },
     "小麦": { name: "小麦", level: 7, seedPrice: 126, sellPrice: 600, exp: 62, firstTime: 1, reTime: 0, seasons: 1, land: "any" },
     "玉米": { name: "玉米", level: 8, seedPrice: 168, sellPrice: 840, exp: 82, firstTime: 1.33, reTime: 0, seasons: 1, land: "any" },
-    "鲜姜": { name: "鲜姜", level: 9, seedPrice: 222, sellPrice: 1080, exp: 106, firstTime: 1.67, reTime: 0, seasons: 1, land: "any" },
+    "鲜姜": { name: "鲜姜", level: 9, seedPrice: 223, sellPrice: 1080, exp: 106, firstTime: 1.67, reTime: 0, seasons: 1, land: "any" },
     "土豆": { name: "土豆", level: 10, seedPrice: 268, sellPrice: 1320, exp: 128, firstTime: 2, reTime: 0, seasons: 1, land: "any" },
-    "小白菜": { name: "小白菜", level: 11, seedPrice: 334, sellPrice: 1600, exp: 160, firstTime: 2.5, reTime: 0, seasons: 1, land: "any" },
+    "小白菜": { name: "小白菜", level: 11, seedPrice: 335, sellPrice: 1600, exp: 160, firstTime: 2.5, reTime: 0, seasons: 1, land: "any" },
     "生菜": { name: "生菜", level: 12, seedPrice: 402, sellPrice: 2000, exp: 192, firstTime: 3, reTime: 0, seasons: 1, land: "any" },
     "油菜": { name: "油菜", level: 13, seedPrice: 576, sellPrice: 2800, exp: 272, firstTime: 4, reTime: 0, seasons: 1, land: "any" },
     "茄子": { name: "茄子", level: 14, seedPrice: 1152, sellPrice: 5600, exp: 544, firstTime: 8, reTime: 0, seasons: 1, land: "any" },
@@ -35,7 +36,6 @@ const PLANTS_DATABASE = {
     "花菜": { name: "花菜", level: 19, seedPrice: 1920, sellPrice: 9600, exp: 864, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
     "韭菜": { name: "韭菜", level: 20, seedPrice: 3840, sellPrice: 19200, exp: 1728, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
     "小雏菊": { name: "小雏菊", level: 21, seedPrice: 704, sellPrice: 3400, exp: 304, firstTime: 4, reTime: 0, seasons: 1, land: "any" },
-    "昙花": { name: "昙花", level: 21, seedPrice: 6720, sellPrice: 8064, exp: 840, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
     "豌豆": { name: "豌豆", level: 22, seedPrice: 1408, sellPrice: 7000, exp: 608, firstTime: 8, reTime: 0, seasons: 1, land: "any" },
     "莲藕": { name: "莲藕", level: 23, seedPrice: 2112, sellPrice: 10400, exp: 912, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
     "红玫瑰": { name: "红玫瑰", level: 24, seedPrice: 4224, sellPrice: 21000, exp: 1824, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
@@ -46,7 +46,6 @@ const PLANTS_DATABASE = {
     "秋菊（红色）": { name: "秋菊（红色）", level: 29, seedPrice: 888, sellPrice: 4400, exp: 344, firstTime: 4, reTime: 0, seasons: 1, land: "any" },
     "新春红包": { name: "新春红包", level: 30, seedPrice: 0, sellPrice: 20, exp: 688, firstTime: 8, reTime: 0, seasons: 1, land: "any" },
     "辣椒": { name: "辣椒", level: 30, seedPrice: 1776, sellPrice: 8800, exp: 688, firstTime: 8, reTime: 0, seasons: 1, land: "any" },
-    "哈哈南瓜": { name: "哈哈南瓜", level: 31, seedPrice: 56160, sellPrice: 35100, exp: 1, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
     "黄瓜": { name: "黄瓜", level: 31, seedPrice: 2664, sellPrice: 13200, exp: 1032, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
     "芹菜": { name: "芹菜", level: 32, seedPrice: 5328, sellPrice: 26600, exp: 2064, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
     "天香百合": { name: "天香百合", level: 33, seedPrice: 992, sellPrice: 4800, exp: 368, firstTime: 4, reTime: 0, seasons: 1, land: "any" },
@@ -71,16 +70,21 @@ const PLANTS_DATABASE = {
     "橙子": { name: "橙子", level: 52, seedPrice: 9360, sellPrice: 46800, exp: 2856, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
     "茉莉花": { name: "茉莉花", level: 53, seedPrice: 1728, sellPrice: 8600, exp: 508, firstTime: 4, reTime: 0, seasons: 1, land: "any" },
     "葡萄": { name: "葡萄", level: 54, seedPrice: 3456, sellPrice: 17200, exp: 1016, firstTime: 8, reTime: 0, seasons: 1, land: "any" },
-    "丝瓜": { name: "丝瓜", level: 55, seedPrice: 5184, sellPrice: 25800, exp: 1524, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+    "丝瓜": { name: "丝瓜", level: 55, seedPrice: 5184, sellPrice: 25800, exp: 1542, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
     "榛子": { name: "榛子", level: 56, seedPrice: 10368, sellPrice: 51800, exp: 3048, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
     "迎春花": { name: "迎春花", level: 57, seedPrice: 1920, sellPrice: 9600, exp: 540, firstTime: 4, reTime: 0, seasons: 1, land: "any" },
     "石榴": { name: "石榴", level: 58, seedPrice: 3840, sellPrice: 19200, exp: 1080, firstTime: 8, reTime: 0, seasons: 1, land: "any" },
     "栗子": { name: "栗子", level: 59, seedPrice: 5760, sellPrice: 28800, exp: 1620, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
     "柚子": { name: "柚子", level: 60, seedPrice: 11520, sellPrice: 57600, exp: 3240, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
-    "荷包牡丹": { name: "荷包牡丹", level: 61, seedPrice: 27360, sellPrice: 16416, exp: 840, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "荷包牡丹": { name: "荷包牡丹", level: 61, seedPrice: 0, sellPrice: 5040, exp: 484, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
     "蘑菇": { name: "蘑菇", level: 61, seedPrice: 3168, sellPrice: 15600, exp: 429, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
-    "银杏树苗": { name: "银杏树苗", level: 61, seedPrice: 11484, sellPrice: 6864, exp: 720, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
-    "风信子": { name: "风信子", level: 61, seedPrice: 3828, sellPrice: 2256, exp: 720, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "银杏树苗": { name: "银杏树苗", level: 61, seedPrice: 0, sellPrice: 5040, exp: 484, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "风信子": { name: "风信子", level: 61, seedPrice: 0, sellPrice: 5040, exp: 484, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "艾草": { name: "艾草", level: 1, seedPrice: 0, sellPrice: 48000, exp: 1192, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "昙花": { name: "昙花", level: 21, seedPrice: 0, sellPrice: 5040, exp: 484, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "蔷薇": { name: "蔷薇", level: 81, seedPrice: 0, sellPrice: 5040, exp: 484, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "蝴蝶兰": { name: "蝴蝶兰", level: 81, seedPrice: 0, sellPrice: 5040, exp: 484, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "爱心果": { name: "爱心果", level: 71, seedPrice: 0, sellPrice: 5040, exp: 484, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
     "菠萝": { name: "菠萝", level: 62, seedPrice: 6336, sellPrice: 31600, exp: 858, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
     "箬竹": { name: "箬竹", level: 63, seedPrice: 9504, sellPrice: 47200, exp: 1287, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
     "无花果": { name: "无花果", level: 64, seedPrice: 19008, sellPrice: 94800, exp: 2574, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
@@ -90,7 +94,6 @@ const PLANTS_DATABASE = {
     "葫芦": { name: "葫芦", level: 68, seedPrice: 20952, sellPrice: 104400, exp: 2736, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
     "猕猴桃": { name: "猕猴桃", level: 69, seedPrice: 3828, sellPrice: 18800, exp: 480, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
     "梨": { name: "梨", level: 70, seedPrice: 7656, sellPrice: 38000, exp: 960, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
-    "爱心果": { name: "爱心果", level: 71, seedPrice: 139104, sellPrice: 333696, exp: 3840, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
     "睡莲": { name: "睡莲", level: 71, seedPrice: 11484, sellPrice: 57200, exp: 1440, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
     "火龙果": { name: "火龙果", level: 72, seedPrice: 22968, sellPrice: 114800, exp: 2880, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
     "枇杷": { name: "枇杷", level: 73, seedPrice: 4176, sellPrice: 20800, exp: 510, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
@@ -102,8 +105,6 @@ const PLANTS_DATABASE = {
     "桂圆": { name: "桂圆", level: 79, seedPrice: 13680, sellPrice: 68400, exp: 1611, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
     "月柿": { name: "月柿", level: 80, seedPrice: 27360, sellPrice: 136800, exp: 3222, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
     "杨桃": { name: "杨桃", level: 81, seedPrice: 4944, sellPrice: 24400, exp: 567, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
-    "蔷薇": { name: "蔷薇", level: 81, seedPrice: 5796, sellPrice: 3456, exp: 720, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
-    "蝴蝶兰": { name: "蝴蝶兰", level: 81, seedPrice: 17388, sellPrice: 10416, exp: 720, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
     "哈密瓜": { name: "哈密瓜", level: 82, seedPrice: 9888, sellPrice: 49200, exp: 1134, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
     "桑葚": { name: "桑葚", level: 83, seedPrice: 14832, sellPrice: 74000, exp: 1701, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
     "柠檬": { name: "柠檬", level: 84, seedPrice: 29664, sellPrice: 148000, exp: 3402, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
@@ -113,7 +114,7 @@ const PLANTS_DATABASE = {
     "番石榴": { name: "番石榴", level: 88, seedPrice: 32184, sellPrice: 160800, exp: 3582, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
     "瓶子树": { name: "瓶子树", level: 89, seedPrice: 5796, sellPrice: 28800, exp: 627, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
     "蓝莓": { name: "蓝莓", level: 90, seedPrice: 11592, sellPrice: 57600, exp: 1254, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
-    "猪笼草": { name: "猪笼草", level: 91, seedPrice: 17388, sellPrice: 86800, exp: 1881, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
+    "猪笼草": { name: "猪笼草", level: 91, seedPrice: 17388, sellPrice: 86600, exp: 1881, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
     "山竹": { name: "山竹", level: 92, seedPrice: 34776, sellPrice: 173600, exp: 3762, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
     "曼陀罗华": { name: "曼陀罗华", level: 93, seedPrice: 6240, sellPrice: 31200, exp: 660, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
     "曼珠沙华": { name: "曼珠沙华", level: 94, seedPrice: 12480, sellPrice: 62400, exp: 1320, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
@@ -143,22 +144,23 @@ const PLANTS_DATABASE = {
     "人参": { name: "人参", level: 136, seedPrice: 18720, sellPrice: 93600, exp: 1734, firstTime: 8, reTime: 8, seasons: 2, land: "any" },
     "鳄梨": { name: "鳄梨", level: 138, seedPrice: 28080, sellPrice: 140400, exp: 2601, firstTime: 12, reTime: 12, seasons: 2, land: "any" },
     "似血杜鹃": { name: "似血杜鹃", level: 140, seedPrice: 56160, sellPrice: 280800, exp: 5202, firstTime: 24, reTime: 24, seasons: 2, land: "any" },
-    "艾草": { name: "艾草", level: 1, seedPrice: 0, sellPrice: 48000, exp: 1192, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
-    "郁金香": { name: "郁金香", level: 144, seedPrice: 19872, sellPrice: 99200, exp: 1812, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
-    "文殊兰": { name: "文殊兰", level: 142, seedPrice: 9936, sellPrice: 49600, exp: 906, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
+
+    // ========== 新增高级植物（等级基于用户提供或推断） ==========
     "宋梅": { name: "宋梅", level: 164, seedPrice: 66960, sellPrice: 334800, exp: 5886, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
-    "月季花": { name: "月季花", level: 154, seedPrice: 31644, sellPrice: 158000, exp: 2835, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
     "蓝铃花": { name: "蓝铃花", level: 162, seedPrice: 33440, sellPrice: 167200, exp: 2943, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
     "六月雪": { name: "六月雪", level: 160, seedPrice: 22344, sellPrice: 111600, exp: 1962, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
-    "艳蝶兰": { name: "艳蝶兰", level: 150, seedPrice: 10548, sellPrice: 52400, exp: 945, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
     "君子兰": { name: "君子兰", level: 158, seedPrice: 11172, sellPrice: 55600, exp: 981, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
-    "马蹄莲": { name: "马蹄莲", level: 148, seedPrice: 59616, sellPrice: 298000, exp: 5436, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
     "兰花": { name: "兰花", level: 156, seedPrice: 63288, sellPrice: 316400, exp: 5670, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
+    "月季花": { name: "月季花", level: 154, seedPrice: 31644, sellPrice: 158000, exp: 2835, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
+    "宝华玉兰": { name: "宝华玉兰", level: 152, seedPrice: 21096, sellPrice: 105200, exp: 1890, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "艳蝶兰": { name: "艳蝶兰", level: 150, seedPrice: 10548, sellPrice: 52400, exp: 945, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
+    "马蹄莲": { name: "马蹄莲", level: 148, seedPrice: 59616, sellPrice: 298000, exp: 5436, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
     "薰衣草": { name: "薰衣草", level: 146, seedPrice: 29808, sellPrice: 148800, exp: 2718, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
-    "宝华玉兰": { name: "宝华玉兰", level: 152, seedPrice: 21096, sellPrice: 105200, exp: 1890, firstTime: 8, reTime: 4, seasons: 2, land: "any" }
+    "郁金香": { name: "郁金香", level: 144, seedPrice: 19872, sellPrice: 99200, exp: 1812, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "文殊兰": { name: "文殊兰", level: 142, seedPrice: 9936, sellPrice: 49600, exp: 906, firstTime: 4, reTime: 2, seasons: 2, land: "any" }
 };
 
-// ========== 数据规范化 ==========
+// ========== 数据规范化（补全缺失的 reTime） ==========
 function normalizePlantRecord(plant) {
     if (!plant) return plant;
     if (plant.seasons > 1 && (!plant.reTime || plant.reTime === 0)) {

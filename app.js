@@ -2,10 +2,11 @@
 // QQ农场计时器 - 主应用逻辑（纯 Web 版本，无 PWA）
 // 支持红、黑、金、紫土地完整加成（增产、加速、经验）
 // 默认等级1，不记忆等级
-// 植物排序：特殊植物（新春红包等）在最后，其余按等级升序
-// 特殊植物前显示“活动植物：”标题
+// 植物排序：活动植物（艾草、荷包牡丹、昙花、蔷薇、风信子、蝴蝶兰、爱心果、银杏树苗、新春红包）在最后，其余按等级升序
+// 活动植物前显示“活动植物：”标题
+// 效率页面排除活动植物
 // 切换标签页自动滚动到顶部，已移除所有植物 emoji
-// 效率页面已删除“2季”等季数标签，且排除特殊植物
+// 效率页面已删除“2季”等季数标签
 // 土地加成和解锁等级文案均为红色加粗
 // 修复种植信息弹窗标题 undefined 错误
 // 等级上限提升至 201 级
@@ -74,7 +75,6 @@ function selectLand(landType) {
     if (land.expBonus > 0) bonusStr += ` · 经验+${Math.round(land.expBonus*100)}%`;
     if (bonusStr === '') bonusStr = '无加成';
     bonusText.textContent = bonusStr;
-    // 设置为红色加粗
     bonusText.style.color = 'red';
     bonusText.style.fontWeight = 'bold';
     
@@ -88,8 +88,8 @@ function selectLand(landType) {
     renderPlantGrid(document.getElementById('plant-search-input').value);
 }
 
-// ========== 植物排序 ==========
-const SPECIAL_PLANT_LAST_ORDER = ['新春红包', '哈哈南瓜', '爱心果', '蔷薇', '蝴蝶兰'];
+// ========== 活动植物列表（根据最新要求更新） ==========
+const SPECIAL_PLANT_LAST_ORDER = ['艾草', '荷包牡丹', '昙花', '蔷薇', '风信子', '蝴蝶兰', '爱心果', '银杏树苗', '新春红包'];
 
 function comparePlantsForUI(a, b) {
     const aSpecialIndex = SPECIAL_PLANT_LAST_ORDER.indexOf(a.name);
@@ -150,7 +150,7 @@ function filterPlants(keyword) {
     renderPlantGrid(keyword);
 }
 
-// ========== 种植确认弹窗（仅确认按钮，修复标题 undefined） ==========
+// ========== 种植确认弹窗（仅确认按钮） ==========
 function startPlantTimer(plantName, optionalLandType) {
     const plant = PLANTS_DATABASE[plantName];
     if (!plant) {
@@ -191,7 +191,7 @@ function startPlantTimer(plantName, optionalLandType) {
     );
 }
 
-// ========== 分析页面（等级上限提升至 201） ==========
+// ========== 分析页面（支持经验加成，已删除季数标签，排除活动植物） ==========
 let analysisState = {
     farmLevel: 1,
     selectedLand: 'gold',
@@ -236,7 +236,7 @@ function calculateEfficiency() {
     const plants = Object.values(PLANTS_DATABASE)
         .filter(p => p.level <= analysisState.farmLevel)
         .filter(p => canPlantOnLand(p, analysisState.selectedLand))
-        .filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1)
+        .filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1) // 排除活动植物
         .map(plant => {
             const growTime = calcGrowTime(plant.name, analysisState.selectedLand);
             const totalTime = calcTotalGrowTime(plant.name, analysisState.selectedLand);
