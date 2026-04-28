@@ -24,7 +24,7 @@ QQ经典农场植物图鉴-帮你找到最优作物
 ```
 ├── index.html                 # 页面
 ├── style.css                  # 样式
-├── app.js                     # 经验计算、失误排序等核心逻辑
+├── app.js                     # 经验计算、作物排序等核心逻辑
 ├── plants-data.js             # 植物数据
 └── README.md
 ```
