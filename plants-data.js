@@ -158,7 +158,16 @@ const PLANTS_DATABASE = {
     "马蹄莲": { name: "马蹄莲", level: 148, seedPrice: 59616, sellPrice: 298000, exp: 5436, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
     "薰衣草": { name: "薰衣草", level: 146, seedPrice: 29808, sellPrice: 148800, exp: 2718, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
     "郁金香": { name: "郁金香", level: 144, seedPrice: 19872, sellPrice: 99200, exp: 1812, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
-    "文殊兰": { name: "文殊兰", level: 142, seedPrice: 9936, sellPrice: 49600, exp: 906, firstTime: 4, reTime: 2, seasons: 2, land: "any" }
+    "文殊兰": { name: "文殊兰", level: 142, seedPrice: 9936, sellPrice: 49600, exp: 906, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
+      // ========== 哈哈南瓜活动植物 ==========
+      "黄金果": { name: "黄金果", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+"卡特兰": { name: "卡特兰", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+"红云飞片": { name: "红云飞片", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+"石竹花": { name: "石竹花", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+"针垫花": { name: "针垫花", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+"欧石楠": { name: "欧石楠", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+"孔雀草": { name: "孔雀草", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+"哈哈南瓜": { name: "哈哈南瓜", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 24, reTime: 0, seasons: 1, land: "any" }
 };
 
 // ========== 数据规范化（补全缺失的 reTime） ==========
