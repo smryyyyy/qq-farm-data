@@ -2,14 +2,10 @@
 // QQ农场计时器 - 主应用逻辑（纯 Web 版本，无 PWA）
 // 支持红、黑、金、紫土地完整加成（增产、加速、经验）
 // 默认等级1，不记忆等级
-// 植物排序：活动植物（艾草、荷包牡丹、昙花、蔷薇、风信子、蝴蝶兰、爱心果、银杏树苗、新春红包）在最后，其余按等级升序
-// 活动植物前显示“活动植物：”标题
-// 效率页面排除活动植物
-// 切换标签页自动滚动到顶部，已移除所有植物 emoji
-// 效率页面已删除“2季”等季数标签
-// 土地加成和解锁等级文案均为红色加粗
-// 修复种植信息弹窗标题 undefined 错误
-// 等级上限提升至 201 级
+// 活动植物（艾草、荷包牡丹、昙花、蔷薇、风信子、蝴蝶兰、爱心果、银杏树苗、新春红包）
+//   种植页不显示具体售价/经验，显示“稀有种子”“lv.0”
+//   种植弹窗不显示具体数值，显示“随种植等级变化”
+// 效率页面自动排除活动植物
 // ============================================
 
 // ========== 全局状态 ==========
@@ -88,7 +84,7 @@ function selectLand(landType) {
     renderPlantGrid(document.getElementById('plant-search-input').value);
 }
 
-// ========== 活动植物列表（根据最新要求更新） ==========
+// ========== 活动植物列表 ==========
 const SPECIAL_PLANT_LAST_ORDER = ['艾草', '荷包牡丹', '昙花', '蔷薇', '风信子', '蝴蝶兰', '爱心果', '银杏树苗', '新春红包'];
 
 function comparePlantsForUI(a, b) {
@@ -105,7 +101,7 @@ function comparePlantsForUI(a, b) {
     return a.name.localeCompare(b.name, 'zh-CN');
 }
 
-// ========== 植物网格（已移除 emoji） ==========
+// ========== 植物网格（活动植物隐藏数值，等级显示 lv.0） ==========
 function renderPlantGrid(filter = '') {
     const grid = document.getElementById('plant-grid');
     const landType = state.selectedLand;
@@ -121,18 +117,28 @@ function renderPlantGrid(filter = '') {
     const specialPlants = plants.filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) !== -1);
     
     const plantCard = (plant) => {
+        const isSpecial = SPECIAL_PLANT_LAST_ORDER.indexOf(plant.name) !== -1;
         const growTime = calcGrowTime(plant.name, landType);
         const totalTime = calcTotalGrowTime(plant.name, landType);
         const seasonsInfo = plant.seasons > 1 ? `${plant.seasons}季·总${totalTime}h` : '单季';
         const seasonsClass = plant.seasons > 1 ? 'plant-seasons' : 'plant-seasons is-placeholder';
+        
+        let profitHtml, levelHtml;
+        if (isSpecial) {
+            profitHtml = `<div class="plant-profit"><span class="coin">✨ 稀有种子</span></div>`;
+            levelHtml = `<div class="plant-level">lv.0</div>`;
+        } else {
+            profitHtml = `<div class="plant-profit"><span class="coin">💰${plant.sellPrice}</span></div>`;
+            levelHtml = `<div class="plant-level">Lv.${plant.level}</div>`;
+        }
         
         return `
             <div class="plant-card" onclick="startPlantTimer('${plant.name}')">
                 <div class="plant-name">${plant.name}</div>
                 <div class="plant-time">${growTime}小时${plant.seasons > 1 ? '(首季)' : ''}</div>
                 <span class="${seasonsClass}">${seasonsInfo}</span>
-                <div class="plant-level">Lv.${plant.level}</div>
-                <div class="plant-profit"><span class="coin">💰${plant.sellPrice}</span></div>
+                ${levelHtml}
+                ${profitHtml}
             </div>
         `;
     };
@@ -150,7 +156,7 @@ function filterPlants(keyword) {
     renderPlantGrid(keyword);
 }
 
-// ========== 种植确认弹窗（仅确认按钮） ==========
+// ========== 种植确认弹窗（活动植物不显示具体数值） ==========
 function startPlantTimer(plantName, optionalLandType) {
     const plant = PLANTS_DATABASE[plantName];
     if (!plant) {
@@ -163,6 +169,7 @@ function startPlantTimer(plantName, optionalLandType) {
     const growTime = calcGrowTime(plantName, landType);
     const totalTime = calcTotalGrowTime(plantName, landType);
     const seasonTimes = getSeasonTimes(plantName, landType);
+    const isSpecial = SPECIAL_PLANT_LAST_ORDER.indexOf(plantName) !== -1;
     
     let seasonsInfo = '';
     if (plant.seasons > 1) {
@@ -180,18 +187,25 @@ function startPlantTimer(plantName, optionalLandType) {
     const timeBonus = land.timeBonus > 0 ? `<span>⏱️ 成熟-${Math.round(land.timeBonus*100)}%</span>` : '';
     const expBonus = land.expBonus > 0 ? `<span>✨ 经验+${Math.round(land.expBonus*100)}%</span>` : '';
     
+    let incomeExpHtml;
+    if (isSpecial) {
+        incomeExpHtml = `<small>💰 收入 随种植等级变化 · ⭐ 经验 随种植等级变化 · ${plant.seasons}季作物</small>`;
+    } else {
+        incomeExpHtml = `<small>💰 收入 ${Math.round(plant.sellPrice * (1+land.yieldBonus))} · ⭐ 经验 +${Math.round(plant.exp * (1+land.expBonus))} · ${plant.seasons}季作物</small>`;
+    }
+    
     showConfirm(
         `🌱 种植信息`,
         `在 <strong>${land.emoji} ${land.name}</strong> 上种植 <strong>${plant.name}</strong><br>
         首季成熟：<strong>${growTime}小时</strong><br>
-        <small>💰 收入 ${Math.round(plant.sellPrice * (1+land.yieldBonus))} · ⭐ 经验 +${Math.round(plant.exp * (1+land.expBonus))} · ${plant.seasons}季作物</small>
+        ${incomeExpHtml}
         ${yieldBonus}${timeBonus}${expBonus}
         ${seasonsInfo}`,
         () => {}
     );
 }
 
-// ========== 分析页面（支持经验加成，已删除季数标签，排除活动植物） ==========
+// ========== 分析页面（排除活动植物） ==========
 let analysisState = {
     farmLevel: 1,
     selectedLand: 'gold',
@@ -236,7 +250,7 @@ function calculateEfficiency() {
     const plants = Object.values(PLANTS_DATABASE)
         .filter(p => p.level <= analysisState.farmLevel)
         .filter(p => canPlantOnLand(p, analysisState.selectedLand))
-        .filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1) // 排除活动植物
+        .filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1)
         .map(plant => {
             const growTime = calcGrowTime(plant.name, analysisState.selectedLand);
             const totalTime = calcTotalGrowTime(plant.name, analysisState.selectedLand);
