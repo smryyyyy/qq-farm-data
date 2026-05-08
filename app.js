@@ -2,10 +2,8 @@
 // QQ农场计时器 - 主应用逻辑（纯 Web 版本，无 PWA）
 // 支持红、黑、金、紫土地完整加成（增产、加速、经验）
 // 默认等级1，不记忆等级
-// 活动植物（艾草、荷包牡丹、昙花、蔷薇、风信子、蝴蝶兰、爱心果、银杏树苗、新春红包）
-//   种植页不显示具体售价/经验，显示“稀有种子”“lv.0”
-//   种植弹窗不显示具体数值，显示“随种植等级变化”
-// 效率页面自动排除活动植物
+// 活动植物（共17种）排序在末尾，效率页排除
+// 最高收益/经验基于实际每小时数值独立计算，不受排序影响
 // ============================================
 
 // ========== 全局状态 ==========
@@ -20,12 +18,9 @@ document.addEventListener('DOMContentLoaded', () => {
     updateStickyOffsets();
 
     const farmLevelInput = document.getElementById('farm-level-input');
-    if (farmLevelInput) {
-        farmLevelInput.value = 1;
-    }
+    if (farmLevelInput) farmLevelInput.value = 1;
     analysisState.farmLevel = 1;
     selectAnalysisLand(analysisState.selectedLand);
-
     window.addEventListener('resize', updateStickyOffsets);
 });
 
@@ -34,10 +29,8 @@ function updateStickyOffsets() {
     const root = document.documentElement;
     const header = document.querySelector('.app-header');
     const tabNav = document.querySelector('.tab-nav');
-
     const headerHeight = header ? Math.round(header.getBoundingClientRect().height) : 0;
     const tabHeight = tabNav ? Math.round(tabNav.getBoundingClientRect().height) : 0;
-
     root.style.setProperty('--header-sticky-height', `${headerHeight}px`);
     root.style.setProperty('--tab-sticky-height', `${tabHeight}px`);
     root.style.setProperty('--plant-sticky-top', `${headerHeight + tabHeight}px`);
@@ -45,12 +38,8 @@ function updateStickyOffsets() {
 
 // ========== 标签页切换 ==========
 function switchTab(tabName) {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.tab === tabName);
-    });
-    document.querySelectorAll('.tab-content').forEach(content => {
-        content.classList.toggle('active', content.id === `tab-${tabName}`);
-    });
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabName));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.toggle('active', content.id === `tab-${tabName}`));
     requestAnimationFrame(updateStickyOffsets);
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -59,11 +48,7 @@ function switchTab(tabName) {
 function selectLand(landType) {
     state.selectedLand = landType;
     const land = LAND_TYPES[landType];
-    
-    document.querySelectorAll('#land-options .land-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.land === landType);
-    });
-    
+    document.querySelectorAll('#land-options .land-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.land === landType));
     const bonusText = document.getElementById('land-bonus-text');
     let bonusStr = '';
     if (land.yieldBonus > 0) bonusStr += `增产+${Math.round(land.yieldBonus*100)}% `;
@@ -73,46 +58,39 @@ function selectLand(landType) {
     bonusText.textContent = bonusStr;
     bonusText.style.color = 'red';
     bonusText.style.fontWeight = 'bold';
-    
     const detailText = document.getElementById('land-detail-text');
     if (detailText) {
         detailText.textContent = `解锁等级 Lv.${land.level}`;
         detailText.style.color = 'red';
         detailText.style.fontWeight = 'bold';
     }
-    
     renderPlantGrid(document.getElementById('plant-search-input').value);
 }
 
-// ========== 活动植物列表 ==========
-const SPECIAL_PLANT_LAST_ORDER = ['哈哈南瓜', '黄金果', '卡特兰', '红云飞片', '石竹花', '针垫花', '欧石楠', '孔雀草','艾草','爱心果', '荷包牡丹', '昙花', '蔷薇', '风信子', '蝴蝶兰',  '银杏树苗', '新春红包' ];
+// ========== 活动植物列表（共17种） ==========
+const SPECIAL_PLANT_LAST_ORDER = [
+    '艾草', '荷包牡丹', '昙花', '蔷薇', '风信子', '蝴蝶兰', '爱心果', '银杏树苗', '新春红包',
+    '哈哈南瓜', '黄金果', '卡特兰', '红云飞片', '石竹花', '针垫花', '欧石楠', '孔雀草'
+];
 
 function comparePlantsForUI(a, b) {
     const aSpecialIndex = SPECIAL_PLANT_LAST_ORDER.indexOf(a.name);
     const bSpecialIndex = SPECIAL_PLANT_LAST_ORDER.indexOf(b.name);
     const aIsSpecial = aSpecialIndex !== -1;
     const bIsSpecial = bSpecialIndex !== -1;
-
     if (aIsSpecial && !bIsSpecial) return 1;
     if (!aIsSpecial && bIsSpecial) return -1;
     if (aIsSpecial && bIsSpecial) return aSpecialIndex - bSpecialIndex;
-
     if (a.level !== b.level) return a.level - b.level;
     return a.name.localeCompare(b.name, 'zh-CN');
 }
 
-// ========== 植物网格（活动植物隐藏数值，等级显示 lv.0） ==========
+// ========== 植物网格 ==========
 function renderPlantGrid(filter = '') {
     const grid = document.getElementById('plant-grid');
     const landType = state.selectedLand;
-    let plants;
-    if (filter) {
-        plants = searchPlants(filter, landType);
-    } else {
-        plants = Object.values(PLANTS_DATABASE).filter(p => canPlantOnLand(p, landType));
-    }
+    let plants = filter ? searchPlants(filter, landType) : Object.values(PLANTS_DATABASE).filter(p => canPlantOnLand(p, landType));
     plants.sort(comparePlantsForUI);
-    
     const normalPlants = plants.filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1);
     const specialPlants = plants.filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) !== -1);
     
@@ -122,7 +100,6 @@ function renderPlantGrid(filter = '') {
         const totalTime = calcTotalGrowTime(plant.name, landType);
         const seasonsInfo = plant.seasons > 1 ? `${plant.seasons}季·总${totalTime}h` : '单季';
         const seasonsClass = plant.seasons > 1 ? 'plant-seasons' : 'plant-seasons is-placeholder';
-        
         let profitHtml, levelHtml;
         if (isSpecial) {
             profitHtml = `<div class="plant-profit"><span class="coin">✨ 稀有种子</span></div>`;
@@ -131,7 +108,6 @@ function renderPlantGrid(filter = '') {
             profitHtml = `<div class="plant-profit"><span class="coin">💰${plant.sellPrice}</span></div>`;
             levelHtml = `<div class="plant-level">Lv.${plant.level}</div>`;
         }
-        
         return `
             <div class="plant-card" onclick="startPlantTimer('${plant.name}')">
                 <div class="plant-name">${plant.name}</div>
@@ -152,18 +128,12 @@ function renderPlantGrid(filter = '') {
     grid.innerHTML = html;
 }
 
-function filterPlants(keyword) {
-    renderPlantGrid(keyword);
-}
+function filterPlants(keyword) { renderPlantGrid(keyword); }
 
-// ========== 种植确认弹窗（活动植物不显示具体数值） ==========
+// ========== 种植确认弹窗 ==========
 function startPlantTimer(plantName, optionalLandType) {
     const plant = PLANTS_DATABASE[plantName];
-    if (!plant) {
-        showToast('未找到该植物信息');
-        return;
-    }
-    
+    if (!plant) { showToast('未找到该植物信息'); return; }
     const landType = optionalLandType || state.selectedLand || 'gold';
     const land = LAND_TYPES[landType];
     const growTime = calcGrowTime(plantName, landType);
@@ -174,15 +144,8 @@ function startPlantTimer(plantName, optionalLandType) {
     let seasonsInfo = '';
     if (plant.seasons > 1) {
         const seasonList = seasonTimes.map((t, i) => `<div class="season-row">第${i+1}季: <strong>${t}小时</strong></div>`).join('');
-        seasonsInfo = `
-            <div class="seasons-detail">
-                <div class="seasons-title">📅 各季成熟时间（${land.emoji} ${land.name}）</div>
-                ${seasonList}
-                <div class="seasons-total">全部收获预计 <strong>${totalTime}小时</strong></div>
-            </div>
-        `;
+        seasonsInfo = `<div class="seasons-detail"><div class="seasons-title">📅 各季成熟时间（${land.emoji} ${land.name}）</div>${seasonList}<div class="seasons-total">全部收获预计 <strong>${totalTime}小时</strong></div></div>`;
     }
-    
     const yieldBonus = land.yieldBonus > 0 ? `<span>📈 ${land.emoji}增产+${Math.round(land.yieldBonus*100)}%</span>` : '';
     const timeBonus = land.timeBonus > 0 ? `<span>⏱️ 成熟-${Math.round(land.timeBonus*100)}%</span>` : '';
     const expBonus = land.expBonus > 0 ? `<span>✨ 经验+${Math.round(land.expBonus*100)}%</span>` : '';
@@ -205,7 +168,7 @@ function startPlantTimer(plantName, optionalLandType) {
     );
 }
 
-// ========== 分析页面（排除活动植物） ==========
+// ========== 分析页面 ==========
 let analysisState = {
     farmLevel: 1,
     selectedLand: 'gold',
@@ -213,15 +176,13 @@ let analysisState = {
 };
 
 function updateFarmLevel(level) {
-    level = parseInt(level);
-    if (isNaN(level)) level = 1;
+    level = parseInt(level) || 1;
     level = Math.min(201, Math.max(1, level));
     analysisState.farmLevel = level;
-    
     const hint = document.getElementById('plant-count-hint');
     if (hint) {
-        const unlocked = Object.values(PLANTS_DATABASE).filter(p => p.level <= level && SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1).length;
-        const total = Object.values(PLANTS_DATABASE).filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1).length;
+        const unlocked = Object.values(PLANTS_DATABASE).filter(p => p.level <= level && !SPECIAL_PLANT_LAST_ORDER.includes(p.name)).length;
+        const total = Object.values(PLANTS_DATABASE).filter(p => !SPECIAL_PLANT_LAST_ORDER.includes(p.name)).length;
         hint.textContent = `已解锁 ${unlocked}/${total} 种植物`;
     }
     calculateEfficiency();
@@ -238,9 +199,7 @@ function adjustLevel(delta) {
 
 function selectAnalysisLand(landType) {
     analysisState.selectedLand = landType;
-    document.querySelectorAll('#analysis-land-options .land-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.land === landType);
-    });
+    document.querySelectorAll('#analysis-land-options .land-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.land === landType));
     calculateEfficiency();
 }
 
@@ -248,9 +207,7 @@ function calculateEfficiency() {
     const land = LAND_TYPES[analysisState.selectedLand];
     if (!land) return;
     const plants = Object.values(PLANTS_DATABASE)
-        .filter(p => p.level <= analysisState.farmLevel)
-        .filter(p => canPlantOnLand(p, analysisState.selectedLand))
-        .filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1)
+        .filter(p => p.level <= analysisState.farmLevel && canPlantOnLand(p, analysisState.selectedLand) && !SPECIAL_PLANT_LAST_ORDER.includes(p.name))
         .map(plant => {
             const growTime = calcGrowTime(plant.name, analysisState.selectedLand);
             const totalTime = calcTotalGrowTime(plant.name, analysisState.selectedLand);
@@ -261,17 +218,7 @@ function calculateEfficiency() {
             const totalExp = expPerSeason * plant.seasons;
             const incomePerHour = totalTime > 0 ? totalProfit / totalTime : 0;
             const expPerHour = totalTime > 0 ? totalExp / totalTime : 0;
-            return {
-                ...plant,
-                growTime,
-                totalTime,
-                sellPrice,
-                profit,
-                totalProfit,
-                totalExp,
-                incomePerHour,
-                expPerHour
-            };
+            return { ...plant, growTime, totalTime, sellPrice, profit, totalProfit, totalExp, incomePerHour, expPerHour };
         });
     analysisState.results = plants;
     sortAnalysisResults();
@@ -297,12 +244,24 @@ function renderAnalysisResults(results) {
     if (!resultDiv) return;
     resultDiv.style.display = 'block';
     
-    const topIncome = results[0];
-    const topExp = [...results].sort((a,b) => b.expPerHour - a.expPerHour)[0];
+    // 独立计算最高小时收益和最高小时经验的植物（不受排序影响）
+    let maxIncomePlant = null, maxExpPlant = null;
+    let maxIncome = -Infinity, maxExp = -Infinity;
+    for (const plant of analysisState.results) {  // 使用原始未排序的结果
+        if (plant.incomePerHour > maxIncome) {
+            maxIncome = plant.incomePerHour;
+            maxIncomePlant = plant;
+        }
+        if (plant.expPerHour > maxExp) {
+            maxExp = plant.expPerHour;
+            maxExpPlant = plant;
+        }
+    }
+    
     summaryDiv.innerHTML = `
-        <div class="summary-item"><span class="summary-label">🏆 最高收益</span><span class="summary-value">${topIncome.name}</span><span class="summary-sub">${topIncome.incomePerHour.toFixed(1)}/h</span></div>
+        <div class="summary-item"><span class="summary-label">🏆 最高小时收益</span><span class="summary-value">${maxIncomePlant?.name || '—'}</span><span class="summary-sub">${maxIncomePlant ? maxIncomePlant.incomePerHour.toFixed(1) + '/h' : '—'}</span></div>
         <div class="summary-divider"></div>
-        <div class="summary-item"><span class="summary-label">⭐ 最高经验</span><span class="summary-value">${topExp.name}</span><span class="summary-sub">${topExp.expPerHour.toFixed(1)}/h</span></div>
+        <div class="summary-item"><span class="summary-label">⭐ 最高小时经验</span><span class="summary-value">${maxExpPlant?.name || '—'}</span><span class="summary-sub">${maxExpPlant ? maxExpPlant.expPerHour.toFixed(1) + '/h' : '—'}</span></div>
     `;
     
     listDiv.innerHTML = results.map((plant, idx) => {
@@ -310,11 +269,8 @@ function renderAnalysisResults(results) {
         let timeDisplay = `${plant.growTime}h`;
         if (plant.seasons > 1) {
             const seasonTimes = getSeasonTimes(plant.name, analysisState.selectedLand);
-            if (seasonTimes.length >= 2) {
-                timeDisplay = `${seasonTimes[0]}h · ${seasonTimes[1]}h = ${plant.totalTime}h`;
-            } else {
-                timeDisplay = `${plant.growTime}h · ${plant.totalTime - plant.growTime}h = ${plant.totalTime}h`;
-            }
+            if (seasonTimes.length >= 2) timeDisplay = `${seasonTimes[0]}h · ${seasonTimes[1]}h = ${plant.totalTime}h`;
+            else timeDisplay = `${plant.growTime}h · ${plant.totalTime - plant.growTime}h = ${plant.totalTime}h`;
         }
         return `
             <div class="analysis-plant-card" onclick="startPlantTimer('${plant.name}', '${analysisState.selectedLand}')">
@@ -332,14 +288,8 @@ function renderAnalysisResults(results) {
     }).join('');
 }
 
-function showAnalysisHelp() {
-    const modal = document.getElementById('analysis-help-modal');
-    if (modal) modal.style.display = 'flex';
-}
-function closeAnalysisHelp() {
-    const modal = document.getElementById('analysis-help-modal');
-    if (modal) modal.style.display = 'none';
-}
+function showAnalysisHelp() { document.getElementById('analysis-help-modal').style.display = 'flex'; }
+function closeAnalysisHelp() { document.getElementById('analysis-help-modal').style.display = 'none'; }
 
 // ========== 分享 ==========
 async function handleShare() {
@@ -373,7 +323,7 @@ function showToast(message) {
     }, 2500);
 }
 
-// ========== 确认弹窗（仅确认按钮） ==========
+// ========== 确认弹窗 ==========
 function showConfirm(title, message, onConfirm) {
     const old = document.getElementById('confirm-overlay');
     if (old) old.remove();
