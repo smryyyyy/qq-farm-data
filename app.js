@@ -1,11 +1,3 @@
-// ============================================
-// QQ农场计时器 - 主应用逻辑（纯 Web 版本，无 PWA）
-// 支持红、黑、金、紫土地完整加成（增产、加速、经验）
-// 默认等级1，不记忆等级
-// 活动植物（共17种）排序在末尾，效率页排除
-// 最高收益/经验基于实际每小时数值独立计算，不受排序影响
-// ============================================
-
 // ========== 全局状态 ==========
 let state = {
     selectedLand: 'gold'
@@ -34,6 +26,18 @@ function updateStickyOffsets() {
     root.style.setProperty('--header-sticky-height', `${headerHeight}px`);
     root.style.setProperty('--tab-sticky-height', `${tabHeight}px`);
     root.style.setProperty('--plant-sticky-top', `${headerHeight + tabHeight}px`);
+}
+
+// ========== 时间格式化 ==========
+function formatTime(hours) {
+    if (hours == null || hours <= 0) return '0小时';
+    const minutes = hours * 60;
+    if (minutes < 6) {
+        // 小于6分钟时显示分钟数
+        return Math.round(minutes) + '分钟';
+    }
+    // 6分钟及以上保留一位小数显示小时
+    return hours.toFixed(1) + '小时';
 }
 
 // ========== 标签页切换 ==========
@@ -89,6 +93,7 @@ function comparePlantsForUI(a, b) {
 function renderPlantGrid(filter = '') {
     const grid = document.getElementById('plant-grid');
     const landType = state.selectedLand;
+    const land = LAND_TYPES[landType];
     let plants = filter ? searchPlants(filter, landType) : Object.values(PLANTS_DATABASE).filter(p => canPlantOnLand(p, landType));
     plants.sort(comparePlantsForUI);
     const normalPlants = plants.filter(p => SPECIAL_PLANT_LAST_ORDER.indexOf(p.name) === -1);
@@ -98,20 +103,34 @@ function renderPlantGrid(filter = '') {
         const isSpecial = SPECIAL_PLANT_LAST_ORDER.indexOf(plant.name) !== -1;
         const growTime = calcGrowTime(plant.name, landType);
         const totalTime = calcTotalGrowTime(plant.name, landType);
-        const seasonsInfo = plant.seasons > 1 ? `${plant.seasons}季·总${totalTime}h` : '单季';
+        const seasonsInfo = plant.seasons > 1 ? `${plant.seasons}季·总${formatTime(totalTime)}` : '单季';
         const seasonsClass = plant.seasons > 1 ? 'plant-seasons' : 'plant-seasons is-placeholder';
         let profitHtml, levelHtml;
         if (isSpecial) {
             profitHtml = `<div class="plant-profit"><span class="coin">✨ 稀有种子</span></div>`;
             levelHtml = `<div class="plant-level">lv.0</div>`;
         } else {
-            profitHtml = `<div class="plant-profit"><span class="coin">💰${plant.sellPrice}</span></div>`;
+            // 计算每小时经验和每小时收入（使用精确时间）
+            const sellPriceWithBonus = plant.sellPrice * (1 + land.yieldBonus);
+            const profitPerSeason = sellPriceWithBonus - plant.seedPrice;
+            const totalProfit = profitPerSeason * plant.seasons;
+            const incomePerHour = totalTime > 0 ? (totalProfit / totalTime) : 0;
+            const expPerSeason = plant.exp * (1 + land.expBonus);
+            const totalExp = expPerSeason * plant.seasons;
+            const expPerHour = totalTime > 0 ? (totalExp / totalTime) : 0;
+            
+            profitHtml = `
+                <div class="plant-profit">
+                    <span class="stat-row">⚡${expPerHour.toFixed(0)}/h</span>
+                    <span class="stat-row">💰${incomePerHour.toFixed(0)}/h</span>
+                </div>
+            `;
             levelHtml = `<div class="plant-level">Lv.${plant.level}</div>`;
         }
         return `
             <div class="plant-card" onclick="startPlantTimer('${plant.name}')">
                 <div class="plant-name">${plant.name}</div>
-                <div class="plant-time">${growTime}小时${plant.seasons > 1 ? '(首季)' : ''}</div>
+                <div class="plant-time">${formatTime(growTime)}${plant.seasons > 1 ? '(首季)' : ''}</div>
                 <span class="${seasonsClass}">${seasonsInfo}</span>
                 ${levelHtml}
                 ${profitHtml}
@@ -143,8 +162,8 @@ function startPlantTimer(plantName, optionalLandType) {
     
     let seasonsInfo = '';
     if (plant.seasons > 1) {
-        const seasonList = seasonTimes.map((t, i) => `<div class="season-row">第${i+1}季: <strong>${t}小时</strong></div>`).join('');
-        seasonsInfo = `<div class="seasons-detail"><div class="seasons-title">📅 各季成熟时间（${land.emoji} ${land.name}）</div>${seasonList}<div class="seasons-total">全部收获预计 <strong>${totalTime}小时</strong></div></div>`;
+        const seasonList = seasonTimes.map((t, i) => `<div class="season-row">第${i+1}季: <strong>${formatTime(t)}</strong></div>`).join('');
+        seasonsInfo = `<div class="seasons-detail"><div class="seasons-title">📅 各季成熟时间（${land.emoji} ${land.name}）</div>${seasonList}<div class="seasons-total">全部收获预计 <strong>${formatTime(totalTime)}</strong></div></div>`;
     }
     const yieldBonus = land.yieldBonus > 0 ? `<span>📈 ${land.emoji}增产+${Math.round(land.yieldBonus*100)}%</span>` : '';
     const timeBonus = land.timeBonus > 0 ? `<span>⏱️ 成熟-${Math.round(land.timeBonus*100)}%</span>` : '';
@@ -160,7 +179,7 @@ function startPlantTimer(plantName, optionalLandType) {
     showConfirm(
         `🌱 种植信息`,
         `在 <strong>${land.emoji} ${land.name}</strong> 上种植 <strong>${plant.name}</strong><br>
-        首季成熟：<strong>${growTime}小时</strong><br>
+        首季成熟：<strong>${formatTime(growTime)}</strong><br>
         ${incomeExpHtml}
         ${yieldBonus}${timeBonus}${expBonus}
         ${seasonsInfo}`,
@@ -247,7 +266,7 @@ function renderAnalysisResults(results) {
     // 独立计算最高小时收益和最高小时经验的植物（不受排序影响）
     let maxIncomePlant = null, maxExpPlant = null;
     let maxIncome = -Infinity, maxExp = -Infinity;
-    for (const plant of analysisState.results) {  // 使用原始未排序的结果
+    for (const plant of analysisState.results) {
         if (plant.incomePerHour > maxIncome) {
             maxIncome = plant.incomePerHour;
             maxIncomePlant = plant;
@@ -266,11 +285,11 @@ function renderAnalysisResults(results) {
     
     listDiv.innerHTML = results.map((plant, idx) => {
         const medal = idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : (idx+1);
-        let timeDisplay = `${plant.growTime}h`;
+        let timeDisplay = formatTime(plant.growTime);
         if (plant.seasons > 1) {
             const seasonTimes = getSeasonTimes(plant.name, analysisState.selectedLand);
-            if (seasonTimes.length >= 2) timeDisplay = `${seasonTimes[0]}h · ${seasonTimes[1]}h = ${plant.totalTime}h`;
-            else timeDisplay = `${plant.growTime}h · ${plant.totalTime - plant.growTime}h = ${plant.totalTime}h`;
+            if (seasonTimes.length >= 2) timeDisplay = `${formatTime(seasonTimes[0])} · ${formatTime(seasonTimes[1])} = ${formatTime(plant.totalTime)}`;
+            else timeDisplay = `${formatTime(plant.growTime)} · ${formatTime(plant.totalTime - plant.growTime)} = ${formatTime(plant.totalTime)}`;
         }
         return `
             <div class="analysis-plant-card" onclick="startPlantTimer('${plant.name}', '${analysisState.selectedLand}')">

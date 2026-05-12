@@ -1,11 +1,3 @@
-// ============================================
-// QQ农场经典 - 植物数据库（基于最新数据）
-// 数据来源：419g.com 作物查询接口（2026-04-23）
-// 包含单季和双季植物共 200+ 种，所有数值为最终值
-// 活动植物（艾草、荷包牡丹、昙花、蔷薇、风信子、蝴蝶兰、爱心果、银杏树苗、新春红包）已重置为 0
-// 已移除 emoji、category 字段，land 统一为 "any"
-// ============================================
-
 const LAND_TYPES = {
     normal: { id: "normal", name: "普通土地", emoji: "🟫", level: 0, yieldBonus: 0, timeBonus: 0, expBonus: 0 },
     red:    { id: "red",    name: "红土地",   emoji: "🔴", level: 28, yieldBonus: 1.00, timeBonus: 0, expBonus: 0 },
@@ -45,7 +37,7 @@ const PLANTS_DATABASE = {
     "含羞草": { name: "含羞草", level: 27, seedPrice: 2376, sellPrice: 11800, exp: 972, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
     "牵牛花": { name: "牵牛花", level: 28, seedPrice: 4752, sellPrice: 23600, exp: 1944, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
     "秋菊（红色）": { name: "秋菊（红色）", level: 29, seedPrice: 888, sellPrice: 4400, exp: 344, firstTime: 4, reTime: 0, seasons: 1, land: "any" },
-    "新春红包": { name: "新春红包", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 0, seasons: 1, land: "any" },  // 活动植物，数值归零
+    "新春红包": { name: "新春红包", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 0, seasons: 1, land: "any" },
     "辣椒": { name: "辣椒", level: 30, seedPrice: 1776, sellPrice: 8800, exp: 688, firstTime: 8, reTime: 0, seasons: 1, land: "any" },
     "黄瓜": { name: "黄瓜", level: 31, seedPrice: 2664, sellPrice: 13200, exp: 1032, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
     "芹菜": { name: "芹菜", level: 32, seedPrice: 5328, sellPrice: 26600, exp: 2064, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
@@ -77,15 +69,15 @@ const PLANTS_DATABASE = {
     "石榴": { name: "石榴", level: 58, seedPrice: 3840, sellPrice: 19200, exp: 1080, firstTime: 8, reTime: 0, seasons: 1, land: "any" },
     "栗子": { name: "栗子", level: 59, seedPrice: 5760, sellPrice: 28800, exp: 1620, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
     "柚子": { name: "柚子", level: 60, seedPrice: 11520, sellPrice: 57600, exp: 3240, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
-    "荷包牡丹": { name: "荷包牡丹", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },  // 活动植物，数值归零
+    "荷包牡丹": { name: "荷包牡丹", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
     "蘑菇": { name: "蘑菇", level: 61, seedPrice: 3168, sellPrice: 15600, exp: 429, firstTime: 4, reTime: 2, seasons: 2, land: "any" },
-    "银杏树苗": { name: "银杏树苗", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },  // 活动植物，数值归零
-    "风信子": { name: "风信子", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },    // 活动植物，数值归零
-    "艾草": { name: "艾草", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },      // 活动植物，数值归零
-    "昙花": { name: "昙花", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },      // 活动植物，数值归零
-    "蔷薇": { name: "蔷薇", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },      // 活动植物，数值归零
-    "蝴蝶兰": { name: "蝴蝶兰", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" }, // 活动植物，数值归零
-    "爱心果": { name: "爱心果", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },   // 活动植物，数值归零
+    "银杏树苗": { name: "银杏树苗", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "风信子": { name: "风信子", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "艾草": { name: "艾草", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "昙花": { name: "昙花", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "蔷薇": { name: "蔷薇", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "蝴蝶兰": { name: "蝴蝶兰", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
+    "爱心果": { name: "爱心果", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
     "菠萝": { name: "菠萝", level: 62, seedPrice: 6336, sellPrice: 31600, exp: 858, firstTime: 8, reTime: 4, seasons: 2, land: "any" },
     "箬竹": { name: "箬竹", level: 63, seedPrice: 9504, sellPrice: 47200, exp: 1287, firstTime: 12, reTime: 6, seasons: 2, land: "any" },
     "无花果": { name: "无花果", level: 64, seedPrice: 19008, sellPrice: 94800, exp: 2574, firstTime: 24, reTime: 12, seasons: 2, land: "any" },
@@ -183,12 +175,12 @@ Object.keys(PLANTS_DATABASE).forEach(name => {
     normalizePlantRecord(PLANTS_DATABASE[name]);
 });
 
-// ========== 土地加成计算函数 ==========
+// ========== 土地加成计算函数（返回精确值，不再过早舍入） ==========
 function calcGrowTime(plantName, landType) {
     const plant = PLANTS_DATABASE[plantName];
     const land = LAND_TYPES[landType];
     if (!plant || !land) return 0;
-    return Math.round(plant.firstTime * (1 - land.timeBonus) * 10) / 10;
+    return plant.firstTime * (1 - land.timeBonus);
 }
 
 function calcTotalGrowTime(plantName, landType) {
@@ -198,11 +190,10 @@ function calcTotalGrowTime(plantName, landType) {
     const m = 1 - land.timeBonus;
     let total = plant.firstTime * m;
     if (plant.seasons > 1) total += plant.reTime * m * (plant.seasons - 1);
-    return Math.round(total * 10) / 10;
+    return total;
 }
 
 function canPlantOnLand(plant, landType) {
-    // 所有植物 land 均为 "any"，始终返回 true
     return true;
 }
 
@@ -211,8 +202,10 @@ function getSeasonTimes(plantName, landType) {
     const land = LAND_TYPES[landType];
     if (!plant || !land) return [];
     const m = 1 - land.timeBonus;
-    const times = [Math.round(plant.firstTime * m * 10) / 10];
-    for (let i = 1; i < plant.seasons; i++) times.push(Math.round(plant.reTime * m * 10) / 10);
+    const times = [plant.firstTime * m];
+    for (let i = 1; i < plant.seasons; i++) {
+        times.push(plant.reTime * m);
+    }
     return times;
 }
 

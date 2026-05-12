@@ -668,6 +668,9 @@ body {
     cursor: pointer;
     transition: all 0.2s;
     border: 2px solid transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .plant-card:hover {
@@ -697,12 +700,6 @@ body {
         box-shadow: 0 0 30px rgba(255, 165, 0, 0.7);
         transform: scale(1.05);
     }
-}
-
-.plant-emoji {
-    font-size: 32px;
-    margin-bottom: 4px;
-    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
 }
 
 .plant-name {
@@ -736,20 +733,28 @@ body {
     line-height: 1.2;
 }
 
+/* 修改后的 plant-profit，支持垂直排列两行数据 */
 .plant-profit {
     width: 100%;
     display: flex;
-    justify-content: center;
-    gap: 0;
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
     font-size: 10px;
     margin-top: auto;
-    white-space: nowrap;
     line-height: 1.2;
 }
 
 .plant-profit .coin {
     color: var(--accent-orange);
     white-space: nowrap;
+}
+
+/* 新增 stat-row 样式，用于每小时经验/收入 */
+.stat-row {
+    color: var(--accent-dark);
+    white-space: nowrap;
+    font-size: 10px;
 }
 
 /* === 植物卡片季次标签 === */
