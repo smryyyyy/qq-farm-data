@@ -71,10 +71,10 @@ function selectLand(landType) {
     renderPlantGrid(document.getElementById('plant-search-input').value);
 }
 
-// ========== 活动植物列表（共17种） ==========
+// ========== 活动植物列表（共18种） ==========
 const SPECIAL_PLANT_LAST_ORDER = [
     '艾草', '荷包牡丹', '昙花', '蔷薇', '风信子', '蝴蝶兰', '爱心果', '银杏树苗', '新春红包',
-    '哈哈南瓜', '黄金果', '卡特兰', '红云飞片', '石竹花', '针垫花', '欧石楠', '孔雀草'
+    '哈哈南瓜', '黄金果', '卡特兰', '红云飞片', '石竹花', '针垫花', '欧石楠', '孔雀草', '欢乐糖果'
 ];
 
 function comparePlantsForUI(a, b) {
