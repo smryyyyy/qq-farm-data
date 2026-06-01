@@ -159,7 +159,10 @@ const PLANTS_DATABASE = {
 "针垫花": { name: "针垫花", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
 "欧石楠": { name: "欧石楠", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
 "孔雀草": { name: "孔雀草", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
-"哈哈南瓜": { name: "哈哈南瓜", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 24, reTime: 0, seasons: 1, land: "any" }
+"哈哈南瓜": { name: "哈哈南瓜", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
+
+    // ========== 欢乐糖果活动植物 ==========
+    "欢乐糖果": { name: "欢乐糖果", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 0, seasons: 1, land: "any" }
 };
 
 // ========== 数据规范化（补全缺失的 reTime） ==========
