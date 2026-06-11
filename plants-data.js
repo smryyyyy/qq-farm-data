@@ -160,7 +160,15 @@ const PLANTS_DATABASE = {
 "欧石楠": { name: "欧石楠", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
 "孔雀草": { name: "孔雀草", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
 "哈哈南瓜": { name: "哈哈南瓜", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 24, reTime: 0, seasons: 1, land: "any" },
-"欢乐糖果": { name: "欢乐糖果", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 0, seasons: 1, land: "any" }
+"欢乐糖果": { name: "欢乐糖果", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 8, reTime: 0, seasons: 1, land: "any" },
+    "琉璃宝荷": { name: "琉璃宝荷", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+    "金银花": { name: "金银花", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+    "香彩雀": { name: "香彩雀", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+    "凤仙花": { name: "凤仙花", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+    "繁星花": { name: "繁星花", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+    "荷青花": { name: "荷青花", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+    "米兰": { name: "米兰", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" },
+    "鹭草": { name: "鹭草", level: 0, seedPrice: 0, sellPrice: 0, exp: 0, firstTime: 12, reTime: 0, seasons: 1, land: "any" }
 };
 
 // ========== 数据规范化（补全缺失的 reTime） ==========
